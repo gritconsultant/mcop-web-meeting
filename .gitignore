@@ -1,0 +1,38 @@
+# Dependencies
+node_modules
+
+# Nuxt build outputs
+.nuxt
+.output
+.data
+.nitro
+.cache
+dist
+
+# Temp / agent scratch
+.tmp
+
+# Yarn
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+.history
+tests
+
+# Logs
+*.log

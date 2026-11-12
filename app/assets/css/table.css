@@ -1,0 +1,3 @@
+.table-truncate {
+  @apply max-w-xs sm:max-w-sm md:max-w-lg lg:max-w-2xl xl:max-w-[1000px] 2xl:max-w-[1300px] truncate;
+}

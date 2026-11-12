@@ -1,0 +1,34 @@
+{
+  "name": "mcop-web-meeting",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "typecheck": "nuxt typecheck"
+  },
+  "dependencies": {
+    "@iconify-json/lucide": "^1.2.112",
+    "@nuxt/ui": "^4.8.2",
+    "@pinia/nuxt": "^0.11.0",
+    "jwt-decode": "^4.0.0",
+    "nuxt": "^4.1.0",
+    "pinia": "^3.0.0",
+    "pinia-plugin-persistedstate": "^4.2.0",
+    "sweetalert2": "^11.26.25",
+    "valibot": "^1.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "sass-embedded": "^1.100.0",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.8.0",
+    "vue": "^3.5.0",
+    "vue-router": "^5.0.0",
+    "vue-tsc": "^2.2.0"
+  }
+}

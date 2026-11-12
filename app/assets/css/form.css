@@ -1,0 +1,24 @@
+.table-form-field [data-slot="error"] {
+  display: none;
+}
+
+.border-error {
+  border-color: #ff0000;
+}
+
+.text-color-black {
+  color: #222222;
+}
+
+.text-color {
+  color: #7c7c7c;
+}
+
+.btn-delete {
+  background-color: #F95454;
+  color: #fff;
+}
+
+.form-text-red {
+  color: #FE3636;
+}
