@@ -107,7 +107,9 @@ const props = withDefaults(
 );
 
 const attrs = useAttrs();
-const openModel = defineModel<boolean>("open");
+const openModel = defineModel<boolean | undefined>("open", {
+  default: undefined,
+});
 
 const slots = useSlots();
 const contentRef = ref<HTMLElement | null>(null);
