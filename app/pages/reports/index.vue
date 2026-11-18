@@ -10,7 +10,10 @@
           <UCInput v-model="form.meetingNo" placeholder="กรอกครั้งที่" />
         </UCFormField>
         <UCFormField label="วันที่ประชุม" name="date" class="w-52">
-          <UCInputDatePicker v-model="form.date" placeholder="เลือกวันที่ประชุม" />
+          <UCInputDatePicker
+            v-model="form.date"
+            placeholder="เลือกวันที่ประชุม"
+          />
         </UCFormField>
         <UCFormField label="สถานที่" name="place" class="w-52">
           <UCInput v-model="form.place" placeholder="กรอกสถานที่" />
@@ -45,9 +48,9 @@
           <th>ลำดับ</th>
           <th>ปีบัญชี</th>
           <th>ครั้งที่</th>
-          <th>วันที่ประชุม</th>
-          <th>คณะ</th>
-          <th>สถานที่</th>
+          <th class="is-left">วันที่ประชุม</th>
+          <th class="is-left">คณะ</th>
+          <th class="is-left">สถานที่</th>
           <th>ผู้เข้าร่วม</th>
           <th>ความคืบหน้า</th>
           <th>สถานะ</th>
@@ -59,7 +62,7 @@
           <td>{{ seqNum(pagination, i) }}</td>
           <td>{{ item.fiscalYear }}</td>
           <td>{{ item.meetingNo }}</td>
-          <td>{{ item.date }}</td>
+          <td class="is-left">{{ item.date }}</td>
           <td class="is-left">{{ item.committee }}</td>
           <td class="is-left">{{ item.place }}</td>
           <td>{{ item.attendees }} ท่าน</td>
