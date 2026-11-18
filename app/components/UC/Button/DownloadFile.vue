@@ -7,7 +7,7 @@
       :class="[
         'flex items-center justify-center gap-2 px-4 py-2 rounded-full border font-bold text-xs transition min-h-10 whitespace-nowrap',
         props.disabled
-          ? 'bg-[#F9F9F9] text-[#AFAFAF] border-[#AFAFAF] cursor-not-allowed'
+          ? 'bg-[#E9F3FF] text-[#0066DA] border-[#449CFF] cursor-not-allowed'
           : 'border-[#66A9FF] bg-[#EAF4FF] text-[#0066DA] hover:bg-[#DDEEFF] cursor-pointer',
       ]"
       @click="toggleSelect"
