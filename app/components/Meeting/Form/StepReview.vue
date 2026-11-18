@@ -1,5 +1,5 @@
 <template>
-  <div class="meeting-form-review">
+  <div class="meeting-form-review flex flex-col gap-5">
     <section class="meeting-form-panel">
       <h2 class="meeting-form-panel__title">ข้อมูลการประชุม</h2>
       <dl class="meeting-form-review__grid">
@@ -53,22 +53,172 @@
     </section>
 
     <section class="meeting-form-panel">
-      <h2 class="meeting-form-panel__title">ระเบียบวาระ</h2>
-      <div v-if="!agendas.length" class="text-sm text-[#7c7c7c]">
+      <h2 class="meeting-form-panel__title mb-3">ระเบียบวาระ</h2>
+
+      <div
+        v-if="!agendas.length"
+        class="text-sm text-[#7c7c7c]"
+      >
         ยังไม่มีระเบียบวาระ
       </div>
-      <div v-else class="meeting-form-review__agendas">
-        <div
-          v-for="agenda in agendas"
-          :key="agenda.id"
-          class="meeting-form-review__agenda"
+
+      <div
+        v-else
+        class="meeting-form-agenda flex w-full items-start gap-5"
+        :class="{ 'meeting-form-agenda--collapsed': navCollapsed }"
+      >
+        <aside
+          class="meeting-form-agenda__nav flex w-[340px] max-w-[340px] shrink-0 flex-col gap-3 self-stretch border-r-[0.7px] border-[#afafaf] bg-white px-3 pb-5"
         >
-          <div class="font-semibold">{{ agenda.label }}</div>
-          <ul>
-            <li v-for="topic in agenda.topics" :key="topic.id">
-              {{ topic.title }}
-            </li>
-          </ul>
+          <div class="flex w-full items-center gap-3">
+            <h3
+              class="m-0 min-w-0 flex-1 text-xl font-bold leading-tight text-[#222]"
+            >
+              ระเบียบวาระ
+            </h3>
+            <button
+              type="button"
+              class="inline-flex size-8 shrink-0 items-center justify-center"
+              :aria-label="navCollapsed ? 'ขยายเมนู' : 'ยุบเมนู'"
+              @click="navCollapsed = !navCollapsed"
+            >
+              <img
+                :src="panelCollapseIcon"
+                alt=""
+                class="size-8 transition-transform"
+                :class="{ 'rotate-180': navCollapsed }"
+              />
+            </button>
+          </div>
+
+          <div
+            v-if="!navCollapsed"
+            class="flex min-h-0 flex-1 flex-col overflow-auto"
+          >
+            <div
+              v-for="agenda in agendas"
+              :key="agenda.id"
+              class="flex flex-col items-start"
+            >
+              <button
+                type="button"
+                class="flex h-10 w-full items-center rounded px-3 py-2 text-left text-sm font-bold"
+                :class="
+                  agenda.id === selectedAgendaId
+                    ? 'bg-[#edecec] text-[#222]'
+                    : 'bg-transparent text-[#7c7c7c] hover:bg-[#fafafa]'
+                "
+                @click="selectAgenda(agenda.id)"
+              >
+                <span class="truncate">{{ agenda.label }}</span>
+              </button>
+
+              <template v-if="agenda.id === selectedAgendaId">
+                <button
+                  v-for="(topic, topicIndex) in agenda.topics"
+                  :key="topic.id"
+                  type="button"
+                  class="ml-3 flex h-10 w-[256px] max-w-[256px] items-center pl-3 text-left text-sm"
+                  :class="
+                    topic.id === selectedTopicId
+                      ? 'bg-[#f6f6f6] text-[#222]'
+                      : 'rounded bg-white text-[#7c7c7c] hover:bg-[#fafafa]'
+                  "
+                  @click="selectTopic(agenda.id, topic.id)"
+                >
+                  <span
+                    class="flex h-full min-w-0 flex-1 items-center border-l-2 py-1 pl-2.5 pr-1"
+                    :class="
+                      topic.id === selectedTopicId
+                        ? 'border-[#222]'
+                        : 'border-[#afafaf]'
+                    "
+                  >
+                    <span class="truncate">
+                      เรื่องที่ {{ topicIndex + 1 }} {{ topic.title }}
+                    </span>
+                  </span>
+                </button>
+              </template>
+            </div>
+          </div>
+        </aside>
+
+        <div class="meeting-form-agenda__detail min-w-0 flex-1">
+          <div
+            v-if="!selectedTopic"
+            class="flex min-h-[360px] items-center justify-center text-sm text-[#222]"
+          >
+            กรุณาเลือกระเบียบวาระ
+          </div>
+
+          <template v-else>
+            <div class="mb-2.5 flex h-10 items-center py-1">
+              <h3
+                class="m-0 min-w-0 flex-1 text-xl font-bold leading-tight text-[#222]"
+              >
+                {{ selectedAgenda?.label || "ระเบียบวาระ" }}
+              </h3>
+            </div>
+
+            <div class="overflow-hidden rounded-xl border border-[#afafaf]">
+              <div
+                class="flex h-[45px] items-center rounded-t-xl border-b border-[#afafaf] bg-[#f9f9f9] px-4"
+              >
+                <span
+                  class="min-w-0 flex-1 truncate text-base font-bold text-[#222]"
+                >
+                  เรื่องที่ {{ selectedTopicIndex + 1 }}
+                  {{ selectedTopic.title ? ` ${selectedTopic.title}` : "" }}
+                </span>
+              </div>
+
+              <div class="flex flex-col gap-5 p-5">
+                <h4
+                  class="m-0 text-xl font-bold leading-tight text-[#222]"
+                >
+                  {{ selectedTopic.title || "-" }}
+                </h4>
+
+                <div class="overflow-hidden rounded-xl border border-[#afafaf]">
+                  <button
+                    type="button"
+                    class="flex h-[45px] w-full items-center justify-between gap-3 bg-[#f9f9f9] px-4 text-left"
+                    @click="detailOpen = !detailOpen"
+                  >
+                    <span class="text-base font-bold text-[#222]">
+                      สาระสำคัญ / รายละเอียด
+                    </span>
+                    <UIcon
+                      :name="
+                        detailOpen
+                          ? 'i-lucide-chevron-up'
+                          : 'i-lucide-chevron-down'
+                      "
+                      class="size-6 shrink-0 text-[#222]"
+                    />
+                  </button>
+                  <div
+                    v-show="detailOpen"
+                    class="border-t border-[#afafaf] bg-white p-5"
+                  >
+                    <div
+                      v-if="selectedTopic.detail"
+                      class="meeting-form-review__detail prose max-w-none text-base leading-normal text-[#222]"
+                      v-html="selectedTopic.detail"
+                    />
+                    <p v-else class="m-0 text-sm text-[#7c7c7c]">ไม่มีรายละเอียด</p>
+                  </div>
+                </div>
+
+                <UCUpload
+                  title="ไฟล์ที่เกี่ยวข้อง"
+                  :currently-files="selectedTopic.files"
+                  disabled
+                />
+              </div>
+            </div>
+          </template>
         </div>
       </div>
     </section>
@@ -76,18 +226,72 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 import type {
   MeetingAgendaDraft,
   MeetingFormReviewInfo,
   MeetingFormReviewInvite,
 } from "#shared/types/meeting";
+import panelCollapseIcon from "~/assets/icon/meeting/panel-collapse.svg";
 
 const props = defineProps<{
   info: MeetingFormReviewInfo;
   invite: MeetingFormReviewInvite;
   agendas: MeetingAgendaDraft[];
 }>();
+
+const selectedAgendaId = ref<string | null>(null);
+const selectedTopicId = ref<string | null>(null);
+const navCollapsed = ref(false);
+const detailOpen = ref(true);
+
+const selectedAgenda = computed(
+  () => props.agendas.find((a) => a.id === selectedAgendaId.value) ?? null,
+);
+
+const selectedTopic = computed(() => {
+  const agenda = selectedAgenda.value;
+  if (!agenda) return null;
+  return agenda.topics.find((t) => t.id === selectedTopicId.value) ?? null;
+});
+
+const selectedTopicIndex = computed(() => {
+  const agenda = selectedAgenda.value;
+  if (!agenda || !selectedTopicId.value) return 0;
+  const index = agenda.topics.findIndex((t) => t.id === selectedTopicId.value);
+  return index >= 0 ? index : 0;
+});
+
+const selectAgenda = (agendaId: string) => {
+  selectedAgendaId.value = agendaId;
+  const first = props.agendas.find((a) => a.id === agendaId)?.topics[0];
+  selectedTopicId.value = first?.id ?? null;
+  detailOpen.value = true;
+};
+
+const selectTopic = (agendaId: string, topicId: string) => {
+  selectedAgendaId.value = agendaId;
+  selectedTopicId.value = topicId;
+  detailOpen.value = true;
+};
+
+watch(
+  () => props.agendas,
+  (rows) => {
+    if (!rows.length) {
+      selectedAgendaId.value = null;
+      selectedTopicId.value = null;
+      return;
+    }
+    if (
+      !selectedAgendaId.value ||
+      !rows.some((r) => r.id === selectedAgendaId.value)
+    ) {
+      selectAgenda(rows[0]!.id);
+    }
+  },
+  { immediate: true, deep: true },
+);
 
 const remindLabel = computed(() => {
   const parts: string[] = [];
@@ -104,3 +308,38 @@ const channelLabel = computed(() => {
   return parts.length ? parts.join(", ") : "-";
 });
 </script>
+
+<style scoped>
+.meeting-form-review__detail :deep(p) {
+  margin: 0 0 0.75em;
+}
+
+.meeting-form-review__detail :deep(ul),
+.meeting-form-review__detail :deep(ol) {
+  margin: 0 0 0.75em;
+  padding-left: 1.25rem;
+}
+
+.meeting-form-agenda--collapsed .meeting-form-agenda__nav {
+  width: 56px;
+  max-width: 56px;
+  padding-inline: 8px;
+}
+
+.meeting-form-agenda--collapsed .meeting-form-agenda__nav h3 {
+  display: none;
+}
+
+@media (max-width: 960px) {
+  .meeting-form-agenda {
+    flex-direction: column;
+  }
+
+  .meeting-form-agenda__nav {
+    width: 100% !important;
+    max-width: none !important;
+    border-right: 0;
+    border-bottom: 0.7px solid #afafaf;
+  }
+}
+</style>

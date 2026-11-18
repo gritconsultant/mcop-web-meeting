@@ -815,18 +815,23 @@
 
 .meeting-form-table .hrm-table thead th {
   height: 50px;
+  min-height: 50px;
   padding: 5px 8px;
   font-size: 14px;
   font-weight: 700;
+  line-height: 1.4;
   color: #222;
   background: #f6f6f6;
   border: none;
 }
 
 .meeting-form-table .hrm-table tbody td {
+  height: 50px;
+  min-height: 50px;
   padding: 5px 8px;
   font-size: 14px;
   font-weight: 400;
+  line-height: 1.4;
   color: #222;
   border: 0.7px solid #afafaf;
   background: #fff;
@@ -849,201 +854,7 @@
 }
 
 .meeting-form-agenda {
-  display: grid;
-  grid-template-columns: 320px minmax(0, 1fr);
-  gap: 0;
   min-height: 520px;
-  border: 1px solid #afafaf;
-  border-radius: 12px;
-  background: #fff;
-  overflow: hidden;
-}
-
-@media (max-width: 960px) {
-  .meeting-form-agenda {
-    grid-template-columns: 1fr;
-  }
-}
-
-.meeting-form-agenda__nav {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 16px 12px 20px;
-  border-right: 1px solid #afafaf;
-  background: #fff;
-}
-
-.meeting-form-agenda__nav-head h3 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 700;
-  color: #222;
-}
-
-.meeting-form-agenda__list {
-  display: flex;
-  flex: 1;
-  min-height: 0;
-  flex-direction: column;
-  gap: 12px;
-  overflow: auto;
-}
-
-.meeting-form-agenda__group {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.meeting-form-agenda__group-title {
-  width: 100%;
-  padding: 8px 10px;
-  border: 0;
-  background: transparent;
-  text-align: left;
-  font-size: 14px;
-  font-weight: 700;
-  color: #222;
-  cursor: pointer;
-}
-
-.meeting-form-agenda__topic {
-  width: 100%;
-  padding: 8px 10px 8px 10px;
-  border: 0;
-  border-left: 2px solid #afafaf;
-  background: transparent;
-  text-align: left;
-  font-size: 14px;
-  color: #4c4c4c;
-  cursor: pointer;
-}
-
-.meeting-form-agenda__topic.is-active {
-  border-left-color: #222;
-  background: #f6f6f6;
-  color: #222;
-  font-weight: 700;
-}
-
-.meeting-form-agenda__topic:hover:not(.is-active) {
-  background: #fafafa;
-}
-
-.meeting-form-agenda__add-topic {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin: 4px 0 0 10px;
-  padding: 4px 0;
-  border: 0;
-  background: transparent;
-  color: #0066da;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.meeting-form-agenda__add {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  height: 40px;
-  margin-top: auto;
-  padding: 0 16px;
-  border: 0.7px solid #7c7c7c;
-  border-radius: 6px;
-  background: #fff;
-  color: #0066da;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.meeting-form-agenda__detail {
-  padding: 20px;
-}
-
-.meeting-form-agenda__detail-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.meeting-form-agenda__detail-head .meeting-form-panel__title {
-  margin: 0;
-}
-
-.meeting-form-agenda__empty {
-  display: flex;
-  min-height: 360px;
-  align-items: center;
-  justify-content: center;
-  color: #222;
-  font-size: 14px;
-}
-
-.meeting-form-agenda__topic-card {
-  overflow: hidden;
-  border: 1px solid #afafaf;
-  border-radius: 12px;
-}
-
-.meeting-form-agenda__topic-card-head {
-  display: flex;
-  height: 45px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 0 16px;
-  background: #f9f9f9;
-  border-bottom: 1px solid #afafaf;
-  font-size: 16px;
-  font-weight: 700;
-  color: #222;
-}
-
-.meeting-form-agenda__topic-delete {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px;
-  border: 0;
-  background: transparent;
-  color: #f95454;
-  cursor: pointer;
-}
-
-.meeting-form-agenda__topic-card-body {
-  padding: 20px;
-}
-
-.meeting-form-agenda__editor {
-  overflow: hidden;
-  border: 1px solid #afafaf;
-  border-radius: 12px;
-}
-
-.meeting-form-agenda__accordion {
-  display: flex;
-  width: 100%;
-  height: 45px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 16px;
-  background: #f9f9f9;
-  border-bottom: 1px solid #afafaf;
-  font-size: 14px;
-  font-weight: 700;
-  color: #222;
-}
-
-.meeting-form-agenda__editor-body {
-  padding: 16px 20px 20px;
 }
 
 .meeting-form-review {

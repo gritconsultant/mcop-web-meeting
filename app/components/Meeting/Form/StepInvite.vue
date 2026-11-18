@@ -40,7 +40,12 @@
         name="meeting_url"
         class="mt-4"
       >
-        <UCInput v-model="form.meetingUrl" placeholder="https://" />
+        <UCInput
+          v-model="form.meetingUrl"
+          leading-text="https://"
+          leading-text-width="5.5rem"
+          placeholder="แนบลิงก์สำหรับการประชุม"
+        />
       </UCFormField>
 
       <div class="mt-4">
