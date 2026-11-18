@@ -16,9 +16,11 @@
 
       <div class="flex flex-wrap items-center justify-between gap-3 text-sm">
         <UCDescriptionList :items="metaItems" />
-        <UCButton label="รายชื่อผู้เข้าประชุม" />
+        <UCButton label="รายชื่อผู้เข้าประชุม" @click="attendeeOpen = true" />
       </div>
     </UCPageHeader>
+
+    <MeetingAttendeeModal :open="attendeeOpen" @close="attendeeOpen = false" />
 
     <div class="flex gap-6">
       <UCAgendaSidebar
@@ -171,6 +173,8 @@ const downloadItems = [
   { id: "pdf", name: "ดาวน์โหลดไฟล์ PDF" },
   { id: "excel", name: "ดาวน์โหลดไฟล์ Excel" },
 ];
+
+const attendeeOpen = ref(false);
 
 const agendaOpen = ref(true);
 const activeTopicId = ref("t1");
