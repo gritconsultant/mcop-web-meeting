@@ -547,11 +547,12 @@ button:not(:disabled),
 .hrm-btn--search {
   min-width: 88px;
   height: 40px;
-  padding: 0 20px;
-  font-weight: 600;
+  padding: 0 16px;
+  font-weight: 700;
   color: #fff;
-  background-color: #0069d9;
+  background-color: #0066da;
   border: none;
+  border-radius: 6px;
 }
 
 .hrm-btn--search:hover:not(:disabled) {
@@ -559,16 +560,18 @@ button:not(:disabled),
 }
 
 .hrm-btn--add {
-  height: 42px;
+  height: 40px;
   padding: 0 16px;
-  color: #0062d1;
+  font-weight: 700;
+  color: #0066da;
   background-color: #fff;
-  border: 1px solid #999;
+  border: 0.7px solid #7c7c7c;
+  border-radius: 6px;
 }
 
 .hrm-btn--add:hover:not(:disabled) {
   background-color: #f8fbff;
-  border-color: #0062d1;
+  border-color: #7c7c7c;
 }
 
 .hrm-btn--delete {

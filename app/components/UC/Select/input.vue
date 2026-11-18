@@ -41,7 +41,7 @@
       @update:open="onOpenChange"
     >
       <template #item-label="{ item }">
-        <div class="flex min-w-0 items-center gap-2">
+        <div class="flex min-w-0 items-center gap-2 text-inherit">
           <span
             v-if="item.tag"
             class="inline-flex h-6 shrink-0 items-center rounded px-2 text-xs font-semibold text-white"
@@ -49,7 +49,7 @@
           >
             {{ item.tag }}
           </span>
-          <span class="truncate">{{ item.label }}</span>
+          <span class="truncate text-inherit">{{ item.label }}</span>
         </div>
       </template>
 
@@ -79,13 +79,9 @@
 
 <script setup lang="ts">
 import { appInputUi } from "~/utils/ui/input";
+import type { UCSelectItem } from "#shared/types/select";
 
-export type UCSelectItem = {
-  label: string;
-  value: string;
-  tag?: string;
-  tagClass?: string;
-};
+export type { UCSelectItem };
 
 interface InputMeta {
   // เปิดโหลดรายการเพิ่มเมื่อเลื่อนถึงท้าย (ไม่ส่ง = ปิด ทำงานแบบเดิม)
@@ -234,16 +230,18 @@ const mergedUi = computed(() => ({
     .filter(Boolean)
     .join(" "),
   item: [
-    "w-full rounded-none px-3 py-2.5 text-sm text-[#222] outline-none select-none",
+    "w-full rounded-none px-3 py-2.5 text-sm !text-[#222] outline-none select-none",
     "before:hidden",
-    "data-[highlighted]:bg-neutral-200 data-[highlighted]:text-[#222]",
-    "data-[state=checked]:bg-neutral-500 data-[state=checked]:text-white",
-    "data-[state=checked][data-highlighted]:bg-neutral-500 data-[state=checked][data-highlighted]:text-white",
+    "data-[highlighted]:!bg-[#F9F9F9] data-[highlighted]:!text-[#222]",
+    "data-[state=checked]:!bg-[#edecec] data-[state=checked]:!text-[#222]",
+    "data-[state=checked][data-highlighted]:!bg-[#E8E8E8] data-[state=checked][data-highlighted]:!text-[#222]",
     props.ui?.item,
   ]
     .filter(Boolean)
     .join(" "),
-  itemLabel: ["truncate", props.ui?.itemLabel].filter(Boolean).join(" "),
+  itemLabel: ["truncate !text-inherit", props.ui?.itemLabel]
+    .filter(Boolean)
+    .join(" "),
   itemTrailing: ["hidden", props.ui?.itemTrailing].filter(Boolean).join(" "),
 }));
 </script>

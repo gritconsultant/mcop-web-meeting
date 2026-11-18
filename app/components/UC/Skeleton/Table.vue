@@ -1,6 +1,10 @@
 <template>
   <div class="skeleton-table">
-    <div class="skeleton-table__head" :style="gridStyle">
+    <div
+      v-if="showHead"
+      class="skeleton-table__head"
+      :style="gridStyle"
+    >
       <div
         v-for="col in columns"
         :key="`skeleton-head-${col}`"
@@ -79,10 +83,13 @@ const props = withDefaults(
     rows?: number;
     columns?: number;
     columnVariants?: ColumnVariant[];
+    /** หัวตารางมักมีข้อความจริงอยู่แล้ว — ปิด skeleton หัวได้ */
+    showHead?: boolean;
   }>(),
   {
     rows: 3,
     columns: 8,
+    showHead: false,
   },
 );
 
