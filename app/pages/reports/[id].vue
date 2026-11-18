@@ -21,43 +21,11 @@
     </UCPageHeader>
 
     <div class="flex gap-6">
-      <aside
-        v-if="agendaOpen"
-        class="w-72 shrink-0 border-r border-[#E4E7ED] pr-4"
-      >
-        <div class="mb-4 flex items-center justify-between">
-          <h2 class="text-base font-bold">ระเบียบวาระ</h2>
-          <UCIconButton
-            icon="i-lucide-chevron-left"
-            label="ซ่อนระเบียบวาระ"
-            tone="light"
-            class="size-8! bg-[#3a3a3a]"
-            @click="agendaOpen = false"
-          />
-        </div>
-
-        <ul class="space-y-1 text-sm">
-          <li v-for="a in agendas" :key="a.id">
-            <p class="px-3 py-2 font-bold">{{ a.title }}</p>
-            <ul v-if="a.topics.length" class="ml-3 border-l border-[#AFAFAF]">
-              <li v-for="t in a.topics" :key="t.id">
-                <button
-                  type="button"
-                  class="block w-full truncate px-3 py-2 text-left"
-                  :class="
-                    t.id === activeTopicId
-                      ? 'border-l-2 border-[#222] bg-[#f3f3f3] font-medium'
-                      : 'text-neutral-500 hover:bg-black/5'
-                  "
-                  @click="activeTopicId = t.id"
-                >
-                  {{ t.title }}
-                </button>
-              </li>
-            </ul>
-          </li>
-        </ul>
-      </aside>
+      <UCAgendaSidebar
+        v-model:open="agendaOpen"
+        v-model:active="activeTopicId"
+        :agendas="agendas"
+      />
 
       <section class="min-w-0 flex-1 space-y-4">
         <div class="flex items-center gap-3">
@@ -66,7 +34,7 @@
             icon="i-lucide-chevron-right"
             label="แสดงระเบียบวาระ"
             tone="light"
-            class="size-8! bg-[#3a3a3a]"
+            class="size-8! bg-[#3a3a3a] hover:bg-[#3a3a3a]! hover:opacity-100!"
             @click="agendaOpen = true"
           />
           <h2 class="text-lg font-bold">{{ activeAgenda?.title }}</h2>
@@ -104,7 +72,9 @@
             </div>
 
             <div class="space-y-2">
-              <p class="text-sm">บันทึกมติที่ประชุม ของ{{ activeTopic?.title }}</p>
+              <p class="text-sm">
+                บันทึกมติที่ประชุม ของ{{ activeTopic?.title }}
+              </p>
               <UCInput
                 v-model="resolution"
                 multiline
@@ -144,11 +114,10 @@ const agendas = [
       { id: "t6", title: "เรื่องที่ 6 รายงานสถานะงบประมาณคงเห..." },
     ],
   },
-  { id: "a2", title: "ระเบียบวาระที่ 2 เรื่องสืบเนื่อง", topics: [] },
   {
-    id: "a3",
-    title: "ระเบียบวาระที่ 3 เรื่องเสนอที่ประชุมพิจารณา",
-    topics: [],
+    id: "a2",
+    title: "ระเบียบวาระที่ 2 เรื่องสืบเนื่อง",
+    topics: [{ id: "t7", title: "เรื่องที่ 1 เรื่องที่สืบเนื่อง" }],
   },
 ];
 
