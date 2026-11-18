@@ -24,7 +24,7 @@
       <div
         v-if="openDropdown"
         ref="menu"
-        class="fixed z-[9999] min-w-40 w-max rounded-lg border bg-white shadow"
+        class="fixed z-[9999] min-w-40 w-max rounded-lg border border-gray-200 bg-white shadow"
         :style="[dropdownStyle, customDropdownStyle]"
       >
         <div
