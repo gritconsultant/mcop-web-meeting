@@ -183,7 +183,12 @@ button:not(:disabled),
 
 .hrm-status--pending {
   color: #ff6e00;
-  background-color: #fff4df;
+  background-color: #fff0e5;
+}
+
+.hrm-status--info {
+  color: #338bef;
+  background-color: #d9efff;
 }
 
 .hrm-status--rejected {
@@ -192,8 +197,8 @@ button:not(:disabled),
 }
 
 .hrm-status--approved {
-  color: #2f9d4b;
-  background-color: #e8f7ec;
+  color: #008e6d;
+  background-color: #d5feef;
 }
 
 /* ─── Action icon buttons ─────────────────────────────── */
