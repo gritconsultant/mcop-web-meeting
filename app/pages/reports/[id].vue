@@ -1,8 +1,9 @@
 <template>
-  <div class="space-y-4">
+  <UCSkeletonPageDetail v-if="!meeting && !loadFailed" />
+  <div v-else-if="meeting" class="space-y-4">
     <UCBreadcrumb :items="breadcrumb" />
 
-    <UCPageHeader :title="`รายงานการประชุม ครั้งที่ ${meeting.meetingNo}`">
+    <UCPageHeader :title="`รายงานการประชุม ครั้งที่ ${meetingNo}`">
       <template #actions>
         <UCButtonDownloadFile
           label="ดาวน์โหลดไฟล์รายงาน"
@@ -20,7 +21,11 @@
       </div>
     </UCPageHeader>
 
-    <MeetingAttendeeModal :open="attendeeOpen" @close="attendeeOpen = false" />
+    <MeetingAttendeeModal
+      :open="attendeeOpen"
+      :meeting-id="String(route.params.id)"
+      @close="attendeeOpen = false"
+    />
 
     <div class="flex gap-6">
       <UCAgendaSidebar
@@ -45,31 +50,31 @@
         <UCCard :title="activeTopic?.title">
           <div class="space-y-4">
             <div class="flex items-center justify-between gap-3">
-              <h3 class="text-lg font-bold">{{ topicDetail.heading }}</h3>
+              <h3 class="text-lg font-bold">{{ activeTopic?.heading }}</h3>
               <UCButton
                 type="edit-warning"
                 icon="i-lucide-square-pen"
                 label="แก้ไขมติ"
+                :active="isEditing"
+                @click="onToggleEdit"
               />
             </div>
 
             <UCCard title="สาระสำคัญ / รายละเอียด" accordion>
-              <div class="space-y-4 text-sm leading-6">
-                <p v-for="(p, i) in topicDetail.paragraphs" :key="i">
-                  {{ p }}
-                </p>
-              </div>
+              <div
+                class="space-y-4 text-sm leading-6"
+                v-html="topicDetailHtml"
+              />
             </UCCard>
 
             <h3 class="text-lg font-bold">ไฟล์ที่เกี่ยวข้อง</h3>
             <div class="flex flex-wrap gap-3">
               <UCUploadFileCard
-                v-for="(f, i) in topicDetail.files"
-                :key="i"
-                :href="f.href"
-                :name="f.name"
-                :size-label="f.sizeLabel"
-                :file-type="f.type"
+                v-for="f in activeTopic?.files"
+                :key="f.id"
+                :href="f.url"
+                :name="f.file_names"
+                :size-label="`${f.convert_size} - ${formatDate(f.created_at, 'th_dmy_time')}`"
               />
             </div>
 
@@ -81,10 +86,12 @@
                 v-model="resolution"
                 multiline
                 :rows="3"
+                :disabled="!isEditing"
                 placeholder="ที่ประชุมรับทราบ"
               />
-              <div class="flex justify-end">
-                <UCButton type="search" label="ส่งมติ" />
+              <div v-if="isEditing" class="flex justify-end gap-2">
+                <UCButton label="ยกเลิก" @click="onToggleEdit" />
+                <UCButton type="primary" label="บันทึก" disabled />
               </div>
             </div>
           </div>
@@ -95,79 +102,50 @@
 </template>
 
 <script setup lang="ts">
-// ponytail: mock data, route `id` is ignored (every id shows 6/2568); read route.params.id when report detail API exists
-const meeting = {
-  meetingNo: "6/2568",
-  date: "28 กรกฎาคม 2568  13:00 - 15:40",
-  committee: "คณะกรรมการดำเนินการ",
-  place: "ห้องประชุมชั้น 5",
-};
+import type { ApiResponse } from "#shared/types/api";
+import type { MeetingDetail } from "#shared/types/meeting";
+import DOMPurify from "dompurify";
+import service from "~/service";
+import { formatDate } from "~/utils/format/date";
 
-const agendas = [
-  {
-    id: "a1",
-    title: "ระเบียบวาระที่ 1 เรื่องเสนอที่ประชุมทราบ",
-    topics: [
-      { id: "t1", title: "เรื่องที่ 1 เรื่องที่ประธานแจ้งให้ทราบ" },
-      { id: "t2", title: "เรื่องที่ 2 รายงานผลการดำเนินงานทางก..." },
-      { id: "t3", title: "เรื่องที่ 3 รายงานผลการปฏิบัติงานตามแ..." },
-      { id: "t4", title: "เรื่องที่ 4 รายงานความก้าวหน้าโครงกา..." },
-      { id: "t5", title: "เรื่องที่ 5 สรุปผลการดำเนินงานด้านทรัพ..." },
-      { id: "t6", title: "เรื่องที่ 6 รายงานสถานะงบประมาณคงเห..." },
-    ],
-  },
-  {
-    id: "a2",
-    title: "ระเบียบวาระที่ 2 เรื่องสืบเนื่อง",
-    topics: [{ id: "t7", title: "เรื่องที่ 1 เรื่องที่สืบเนื่อง" }],
-  },
-];
+const route = useRoute();
+const meeting = ref<MeetingDetail>();
+const loadFailed = ref(false);
 
-const topicDetail = {
-  heading: "เรื่องที่ประธานแจ้งให้ทราบ",
-  paragraphs: [
-    "ประธานได้แจ้งให้ที่ประชุมทราบเกี่ยวกับผลการดำเนินงานของสหกรณ์ออมทรัพย์ในรอบครึ่งปีแรกของปี พ.ศ. 2568 โดยภาพรวมสหกรณ์มีผลการดำเนินงานที่น่าพอใจ สินทรัพย์รวมของสหกรณ์ ณ วันที่ 30 มิถุนายน 2568 มีจำนวนทั้งสิ้น 12,500,000,000 บาท เพิ่มขึ้นจากสิ้นปี 2567 คิดเป็นอัตราการเติบโตร้อยละ 4.8 ซึ่งสูงกว่าเป้าหมายที่ตั้งไว้ที่ร้อยละ 4.0",
-    "ในส่วนของเงินรับฝากจากสมาชิกนั้น มียอดรวมทั้งสิ้น 8,200,000,000 บาท เพิ่มขึ้นจากเดือนก่อนหน้าร้อยละ 3.2 โดยเงินฝากออมทรัพย์พิเศษยังคงเป็นประเภทที่ได้รับความนิยมสูงสุด คิดเป็นสัดส่วนร้อยละ 62 ของเงินฝากทั้งหมด",
-    "สำหรับด้านสินเชื่อ ยอดสินเชื่อคงค้างมีจำนวน 9,800,000,000 บาท อัตราส่วนหนี้ที่ไม่ก่อให้เกิดรายได้หรือ NPL อยู่ที่ร้อยละ 1.85 ลดลงจากไตรมาสก่อนหน้าที่อยู่ที่ร้อยละ 2.10",
-  ],
-  files: [
-    {
-      name: "รายงานการประชุมที่ครั้งที่ 6/2568.pdf",
-      href: "#",
-      sizeLabel: "2 MB - 28/08/69 11:21",
-      type: "pdf",
-    },
-    {
-      name: "รายการบัญชี.xlsx",
-      href: "#",
-      sizeLabel: "2 MB - 28/08/2569 11:21",
-      type: "xlsx",
-    },
-    {
-      name: "รายการบัญชี.xlsx",
-      href: "#",
-      sizeLabel: "2 MB - 28/08/2569 11:21",
-      type: "xlsx",
-    },
-    {
-      name: "ลายเซ็นต์.pdf",
-      href: "#",
-      sizeLabel: "2 MB - 28/08/2569 11:21",
-      type: "pdf",
-    },
-  ],
-};
+const meetingNo = computed(
+  () =>
+    `${meeting.value?.meeting_no}/${meeting.value?.meeting_set?.year ?? "-"}`,
+);
 
-const breadcrumb = [
+const agendas = computed(() =>
+  (meeting.value?.agendas ?? []).map((a) => ({
+    id: a.id,
+    title: `ระเบียบวาระที่ ${a.agenda_no} ${a.agenda_title ?? a.agenda_type_name}`,
+    topics: a.topics.map((t) => ({
+      ...t,
+      heading: t.title,
+      title: `เรื่องที่ ${t.topic_no} ${t.title}`,
+    })),
+  })),
+);
+
+const breadcrumb = computed(() => [
   { label: "รายงานการประชุม", to: "/reports" },
-  { label: meeting.meetingNo },
-];
+  { label: meetingNo.value },
+]);
 
-const metaItems = [
-  { label: "วันที่ประชุม", value: meeting.date },
-  { label: "คณะ", value: meeting.committee },
-  { label: "สถานที่", value: meeting.place },
-];
+const metaItems = computed(() => {
+  const m = meeting.value!;
+  const end = m.end_at ? ` - ${formatDate(m.end_at, "time")}` : "";
+  return [
+    {
+      label: "วันที่ประชุม",
+      value: `${formatDate(m.start_at)}  ${formatDate(m.start_at, "time")}${end}`,
+    },
+    { label: "คณะ", value: m.meeting_committee?.name ?? "-" },
+    { label: "สถานที่", value: m.location },
+  ];
+});
 
 const downloadItems = [
   { id: "pdf", name: "ดาวน์โหลดไฟล์ PDF" },
@@ -175,15 +153,50 @@ const downloadItems = [
 ];
 
 const attendeeOpen = ref(false);
-
 const agendaOpen = ref(true);
-const activeTopicId = ref("t1");
+const activeTopicId = ref("");
 const resolution = ref("");
+const isEditing = ref(false);
 
 const activeAgenda = computed(() =>
-  agendas.find((a) => a.topics.some((t) => t.id === activeTopicId.value)),
+  agendas.value.find((a) => a.topics.some((t) => t.id === activeTopicId.value)),
 );
 const activeTopic = computed(() =>
   activeAgenda.value?.topics.find((t) => t.id === activeTopicId.value),
 );
+const topicDetailHtml = computed(() =>
+  DOMPurify.sanitize(activeTopic.value?.detail ?? ""),
+);
+
+const onToggleEdit = () => {
+  isEditing.value = !isEditing.value;
+  resolution.value = activeTopic.value?.resolution_note ?? "";
+};
+
+watch(activeTopic, (t) => {
+  resolution.value = t?.resolution_note ?? "";
+  isEditing.value = false;
+});
+
+const getInfo = async () => {
+  const id = String(route.params.id);
+  meeting.value = undefined;
+  loadFailed.value = false;
+  try {
+    const resp = (await service.meeting.getMeeting(
+      id,
+    )) as ApiResponse<MeetingDetail>;
+    if (id !== String(route.params.id)) return;
+    meeting.value = resp.data;
+    activeTopicId.value = agendas.value[0]?.topics[0]?.id ?? "";
+  } catch (err) {
+    if (id !== String(route.params.id)) return;
+    loadFailed.value = true;
+    if (normalizeApiError(err).status === 404) {
+      showError({ statusCode: 404, statusMessage: "Page Not Found" });
+    }
+  }
+};
+
+onMounted(() => watch(() => route.params.id, getInfo, { immediate: true }));
 </script>

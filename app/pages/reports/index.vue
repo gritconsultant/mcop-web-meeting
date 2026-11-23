@@ -37,6 +37,7 @@
 
     <UCDataTable
       :items="rows"
+      :loading="loading"
       :pagination="pagination"
       show-pagination
       :page-sizes="[5, 10, 20]"
@@ -51,7 +52,7 @@
           <th class="is-left">วันที่ประชุม</th>
           <th class="is-left">คณะ</th>
           <th class="is-left">สถานที่</th>
-          <th>ผู้เข้าร่วม</th>
+          <th>ผู้เข้าร่วม (ท่าน)</th>
           <th>ความคืบหน้า</th>
           <th>สถานะ</th>
           <th />
@@ -60,17 +61,35 @@
       <template #body="{ items }">
         <tr v-for="(item, i) in items" :key="item.id">
           <td>{{ seqNum(pagination, i) }}</td>
-          <td>{{ item.fiscalYear }}</td>
-          <td>{{ item.meetingNo }}</td>
-          <td class="is-left">{{ item.date }}</td>
-          <td class="is-left">{{ item.committee }}</td>
-          <td class="is-left">{{ item.place }}</td>
-          <td>{{ item.attendees }} ท่าน</td>
-          <td>{{ item.progress }}</td>
+          <td>{{ item.meeting_set?.year ?? "" }}</td>
+          <td>{{ item.meeting_no ?? "" }}</td>
+          <td class="is-left">
+            <template v-if="item.start_at">
+              {{ formatDate(item.start_at) }}
+              {{ formatDate(item.start_at, "time") }}
+            </template>
+          </td>
+          <td class="is-left">{{ item.meeting_committee?.name ?? "" }}</td>
+          <td class="is-left">{{ item.location ?? "" }}</td>
+          <td>
+            <template v-if="item.member_count != null">
+              {{ item.member_count }}
+            </template>
+          </td>
+          <td>
+            <template
+              v-if="
+                item.approved_topic_count != null && item.topic_count != null
+              "
+            >
+              {{ item.approved_topic_count }}/{{ item.topic_count }}
+            </template>
+          </td>
           <td>
             <UCStatusBadge
-              :status="STATUS_META[item.status].tone"
-              :label="STATUS_META[item.status].label"
+              v-if="item.status_name"
+              :status="STATUS_META[item.status as ReportStatus]?.tone ?? 'info'"
+              :label="item.status_name"
             />
           </td>
           <td>
@@ -89,127 +108,89 @@
 </template>
 
 <script setup lang="ts">
+import type { ApiResponse } from "#shared/types/api";
+import type { ReportListItem, QueryMeetings } from "#shared/types/meeting";
+import type { PaginateSlice } from "#shared/types/pagination";
 import type { StatusTone } from "#shared/types/status";
+import service from "~/service";
+import { formatDate } from "~/utils/format/date";
 import { seqNum } from "~/utils/table/seqNum";
 
-type ReportStatus = "ended" | "waiting" | "done";
-
-interface ReportRow {
-  id: string;
-  fiscalYear: number;
-  meetingNo: string;
-  date: string;
-  isoDate: string;
-  committee: string;
-  place: string;
-  attendees: number;
-  progress: string;
-  status: ReportStatus;
-}
+type ReportStatus = "ended" | "completed" | "rejected" | "in_progress";
 
 const STATUS_META: Record<ReportStatus, { label: string; tone: StatusTone }> = {
   ended: { label: "จบการประชุม", tone: "info" },
-  waiting: { label: "รอดำเนินการ", tone: "pending" },
-  done: { label: "เสร็จสิ้น", tone: "approved" },
+  completed: { label: "เสร็จสิ้น", tone: "approved" },
+  rejected: { label: "ตีกลับ", tone: "rejected" },
+  in_progress: { label: "รอดำเนินการ", tone: "pending" },
 };
 
-const STATUS_ITEMS = (Object.keys(STATUS_META) as ReportStatus[]).map((v) => ({
-  value: v,
-  label: STATUS_META[v].label,
-}));
+const STATUS_ALL = "all";
 
-// ponytail: mock data + client-side filter/paging; swap for service call when report API exists
-const MOCK: ReportRow[] = [
-  {
-    id: "1",
-    fiscalYear: 2568,
-    meetingNo: "6/2568",
-    isoDate: "2025-07-28",
-    date: "28 กรกฎาคม 2568  13:00 - 15:40",
-    committee: "คณะกรรมการดำเนินการ",
-    place: "ห้องประชุมชั้น 5",
-    attendees: 15,
-    progress: "0/15",
-    status: "ended",
-  },
-  {
-    id: "2",
-    fiscalYear: 2568,
-    meetingNo: "5/2568",
-    isoDate: "2025-06-28",
-    date: "28 มิถุนายน 2568  13:00 - 15:02",
-    committee: "คณะบริหารความเสี่ยง",
-    place: "ห้องประชุมชั้น 5",
-    attendees: 15,
-    progress: "3/8",
-    status: "waiting",
-  },
-  {
-    id: "3",
-    fiscalYear: 2568,
-    meetingNo: "4/2568",
-    isoDate: "2025-05-25",
-    date: "25 พฤษภาคม 2568  09:00 - 11:58",
-    committee: "คณะกรรมการเงินกู้",
-    place: "ห้องประชุมชั้น 5",
-    attendees: 15,
-    progress: "2/2",
-    status: "waiting",
-  },
-  {
-    id: "4",
-    fiscalYear: 2565,
-    meetingNo: "13/2565",
-    isoDate: "2022-08-24",
-    date: "24 สิงหาคม 2565  13:00 - 15:30",
-    committee: "คณะกรรมการดำเนินการ",
-    place: "อาคาร 5 (ชั้น G) สนง.ตำรวจแห่งชาติ",
-    attendees: 18,
-    progress: "5/5",
-    status: "done",
-  },
+const STATUS_ITEMS = [
+  { value: STATUS_ALL, label: "ทั้งหมด" },
+  ...(Object.keys(STATUS_META) as ReportStatus[]).map((v) => ({
+    value: v,
+    label: STATUS_META[v].label,
+  })),
 ];
 
-const emptyForm = () => ({
+const form = reactive({
   meetingNo: "",
   date: undefined as string | undefined,
   place: "",
-  status: undefined as string | undefined,
+  status: STATUS_ALL,
 });
-
-const form = reactive(emptyForm());
-const applied = ref(emptyForm());
-const query = reactive({ from: 0, size: 5 });
+const allStatuses = Object.keys(STATUS_META).join(",");
+const query = reactive<QueryMeetings>({
+  from: 0,
+  size: 10,
+  meeting_no: undefined,
+  meeting_date: undefined,
+  location: undefined,
+  sort_by: "created_at",
+  order_by: "desc",
+  statuses: allStatuses,
+});
 const { pagination, setPagination, applyPage, applyPageSize } =
-  usePagination(5);
+  usePagination(10);
 
-const filtered = computed(() =>
-  MOCK.filter(
-    (r) =>
-      (!applied.value.meetingNo ||
-        r.meetingNo.includes(applied.value.meetingNo)) &&
-      (!applied.value.date || r.isoDate === applied.value.date) &&
-      (!applied.value.place || r.place.includes(applied.value.place)) &&
-      (!applied.value.status || r.status === applied.value.status),
-  ),
-);
+const rows = ref<ReportListItem[]>([]);
+const loading = ref(false);
 
-const rows = computed(() =>
-  filtered.value.slice(query.from, query.from + query.size),
-);
-
-watchEffect(() =>
-  setPagination({
-    from: query.from,
-    size: query.size,
-    total: filtered.value.length,
-  }),
-);
+const getList = async () => {
+  loading.value = true;
+  try {
+    const resp = (await service.meeting.getMeetings({
+      ...query,
+    })) as ApiResponse<ReportListItem[]> & {
+      paginate: PaginateSlice;
+    };
+    rows.value = resp.data;
+    setPagination(resp.paginate);
+  } catch (err) {
+    showFetchError(err);
+  } finally {
+    loading.value = false;
+  }
+};
 
 const onSearch = () => {
-  applied.value = { ...form };
+  query.meeting_no = form.meetingNo || undefined;
+  query.meeting_date = form.date || undefined;
+  query.location = form.place || undefined;
+  query.statuses = form.status === STATUS_ALL ? allStatuses : form.status;
   applyPage(query, 0);
+  getList();
 };
-const onPageChange = (from: number) => applyPage(query, from);
-const onPageSizeChange = (size: number) => applyPageSize(query, size);
+const onPageChange = (from: number) => {
+  applyPage(query, from);
+  getList();
+};
+const onPageSizeChange = (size: number) => {
+  applyPageSize(query, size);
+  getList();
+};
+
+onMounted(getList);
 </script>

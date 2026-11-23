@@ -192,7 +192,7 @@ button:not(:disabled),
 }
 
 .hrm-status--rejected {
-  color: #d14343;
+  color: #fe3636;
   background-color: #ffe8e8;
 }
 
