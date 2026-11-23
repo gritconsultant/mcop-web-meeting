@@ -1,4 +1,3 @@
-/** สถานะการประชุม — `meeting_status` จาก api-spec */
 export type MeetingStatus =
   | "draft"
   | "waiting"
@@ -14,8 +13,6 @@ export const MEETING_STATUS_LABEL: Record<MeetingStatus, string> = {
   completed: "เสร็จสิ้น",
 };
 
-/** @deprecated ใช้ MeetingStatus */
 export type MeetingListStatus = MeetingStatus;
 
-/** @deprecated ใช้ MEETING_STATUS_LABEL */
 export const MEETING_LIST_STATUS_LABEL = MEETING_STATUS_LABEL;

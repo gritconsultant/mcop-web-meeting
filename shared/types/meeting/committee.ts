@@ -9,9 +9,11 @@ export interface Committee {
 export interface CommitteeSet {
   id: string;
   set_number: number;
-  year: string;
+  year?: string | null;
+  meeting_committee_id?: string;
   created_at: string | null;
   updated_at: string | null;
+  meeting_committee?: MeetingCommitteeRef | null;
 }
 
 export interface MeetingCommitteeRef {

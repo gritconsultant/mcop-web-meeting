@@ -1,9 +1,6 @@
 <template>
   <div class="skeleton-page skeleton-page--form min-h-[280px]">
-    <div class="flex items-center gap-2">
-      <div class="h-5 w-1 rounded bg-[#0066DA]" />
-      <UCSkeleton variant="title" width="160px" height="20px" />
-    </div>
+    <UCSkeleton variant="title" width="160px" height="20px" />
 
     <div class="mt-4">
       <UCSkeletonForm :rows="rows" :columns="columns" />

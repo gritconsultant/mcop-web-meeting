@@ -1,6 +1,5 @@
 import type { CurrentlyFile } from "../file";
 
-/** สเต็ปเปอร์ฟอร์มสร้าง/แก้วาระ */
 export interface MeetingFormStep {
   key: string;
   label: string;
@@ -16,7 +15,8 @@ export interface MeetingInfoForm {
 }
 
 export interface MeetingPerson {
-  id: string;
+  key: string;
+  id?: string;
   name: string;
   detail: string;
 }
@@ -36,6 +36,7 @@ export interface MeetingInviteForm {
 }
 
 export interface MeetingInviteRecipient {
+  key: string;
   id: string;
   name: string;
   position: string;
@@ -44,14 +45,16 @@ export interface MeetingInviteRecipient {
 }
 
 export interface MeetingAgendaTopicDraft {
-  id: string;
+  key: string;
+  id?: string;
   title: string;
   detail: string;
   files: CurrentlyFile[];
 }
 
 export interface MeetingAgendaDraft {
-  id: string;
+  key: string;
+  id?: string;
   label: string;
   agendaType: string;
   topics: MeetingAgendaTopicDraft[];

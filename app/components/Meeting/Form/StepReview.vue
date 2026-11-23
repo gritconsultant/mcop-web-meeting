@@ -96,40 +96,40 @@
             class="flex min-h-0 flex-1 flex-col overflow-auto"
           >
             <div
-              v-for="agenda in agendas"
-              :key="agenda.id"
+              v-for="(agenda, index) in agendas"
+              :key="agenda.key"
               class="flex flex-col items-start"
             >
               <button
                 type="button"
                 class="flex h-10 w-full items-center rounded px-3 py-2 text-left text-sm font-bold"
                 :class="
-                  agenda.id === selectedAgendaId
+                  agenda.key === selectedAgendaKey
                     ? 'bg-[#edecec] text-[#222]'
                     : 'bg-transparent text-[#7c7c7c] hover:bg-[#fafafa]'
                 "
-                @click="selectAgenda(agenda.id)"
+                @click="selectAgenda(agenda.key)"
               >
                 <span class="truncate">{{ agenda.label }}</span>
               </button>
 
-              <template v-if="agenda.id === selectedAgendaId">
+              <template v-if="agenda.key === selectedAgendaKey">
                 <button
                   v-for="(topic, topicIndex) in agenda.topics"
-                  :key="topic.id"
+                  :key="topic.key"
                   type="button"
                   class="ml-3 flex h-10 w-[256px] max-w-[256px] items-center pl-3 text-left text-sm"
                   :class="
-                    topic.id === selectedTopicId
+                    topic.key === selectedTopicKey
                       ? 'bg-[#f6f6f6] text-[#222]'
                       : 'rounded bg-white text-[#7c7c7c] hover:bg-[#fafafa]'
                   "
-                  @click="selectTopic(agenda.id, topic.id)"
+                  @click="selectTopic(agenda.key, topic.key)"
                 >
                   <span
                     class="flex h-full min-w-0 flex-1 items-center border-l-2 py-1 pl-2.5 pr-1"
                     :class="
-                      topic.id === selectedTopicId
+                      topic.key === selectedTopicKey
                         ? 'border-[#222]'
                         : 'border-[#afafaf]'
                     "
@@ -240,38 +240,40 @@ const props = defineProps<{
   agendas: MeetingAgendaDraft[];
 }>();
 
-const selectedAgendaId = ref<string | null>(null);
-const selectedTopicId = ref<string | null>(null);
+const selectedAgendaKey = ref<string | null>(null);
+const selectedTopicKey = ref<string | null>(null);
 const navCollapsed = ref(false);
 const detailOpen = ref(true);
 
 const selectedAgenda = computed(
-  () => props.agendas.find((a) => a.id === selectedAgendaId.value) ?? null,
+  () => props.agendas.find((a) => a.key === selectedAgendaKey.value) ?? null,
 );
 
 const selectedTopic = computed(() => {
   const agenda = selectedAgenda.value;
   if (!agenda) return null;
-  return agenda.topics.find((t) => t.id === selectedTopicId.value) ?? null;
+  return agenda.topics.find((t) => t.key === selectedTopicKey.value) ?? null;
 });
 
 const selectedTopicIndex = computed(() => {
   const agenda = selectedAgenda.value;
-  if (!agenda || !selectedTopicId.value) return 0;
-  const index = agenda.topics.findIndex((t) => t.id === selectedTopicId.value);
+  if (!agenda || !selectedTopicKey.value) return 0;
+  const index = agenda.topics.findIndex(
+    (t) => t.key === selectedTopicKey.value,
+  );
   return index >= 0 ? index : 0;
 });
 
-const selectAgenda = (agendaId: string) => {
-  selectedAgendaId.value = agendaId;
-  const first = props.agendas.find((a) => a.id === agendaId)?.topics[0];
-  selectedTopicId.value = first?.id ?? null;
+const selectAgenda = (agendaKey: string) => {
+  selectedAgendaKey.value = agendaKey;
+  const first = props.agendas.find((a) => a.key === agendaKey)?.topics[0];
+  selectedTopicKey.value = first?.key ?? null;
   detailOpen.value = true;
 };
 
-const selectTopic = (agendaId: string, topicId: string) => {
-  selectedAgendaId.value = agendaId;
-  selectedTopicId.value = topicId;
+const selectTopic = (agendaKey: string, topicKey: string) => {
+  selectedAgendaKey.value = agendaKey;
+  selectedTopicKey.value = topicKey;
   detailOpen.value = true;
 };
 
@@ -279,15 +281,15 @@ watch(
   () => props.agendas,
   (rows) => {
     if (!rows.length) {
-      selectedAgendaId.value = null;
-      selectedTopicId.value = null;
+      selectedAgendaKey.value = null;
+      selectedTopicKey.value = null;
       return;
     }
     if (
-      !selectedAgendaId.value ||
-      !rows.some((r) => r.id === selectedAgendaId.value)
+      !selectedAgendaKey.value ||
+      !rows.some((r) => r.key === selectedAgendaKey.value)
     ) {
-      selectAgenda(rows[0]!.id);
+      selectAgenda(rows[0]!.key);
     }
   },
   { immediate: true, deep: true },

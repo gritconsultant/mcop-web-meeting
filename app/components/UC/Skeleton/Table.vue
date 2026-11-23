@@ -83,7 +83,6 @@ const props = withDefaults(
     rows?: number;
     columns?: number;
     columnVariants?: ColumnVariant[];
-    /** หัวตารางมักมีข้อความจริงอยู่แล้ว — ปิด skeleton หัวได้ */
     showHead?: boolean;
   }>(),
   {

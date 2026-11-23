@@ -17,6 +17,22 @@ export const getMeeting = (id: string) => {
   });
 };
 
+export const createMeeting = (data: Record<string, unknown>) => {
+  return client({
+    url: "/meeting/meetings",
+    method: "POST",
+    data,
+  });
+};
+
+export const updateMeeting = (id: string, data: Record<string, unknown>) => {
+  return client({
+    url: `/meeting/meetings/${id}`,
+    method: "PATCH",
+    data,
+  });
+};
+
 export const getMeetingMembers = (id: string) => {
   return client({
     url: `/meeting/meetings/${id}/members`,
@@ -26,7 +42,7 @@ export const getMeetingMembers = (id: string) => {
 
 export const getCommittees = (params?: Record<string, unknown>) => {
   return client({
-    url: "/hrm/meeting-committees",
+    url: "/meeting/meeting-committees",
     method: "GET",
     params: {
       ...params,
@@ -36,7 +52,7 @@ export const getCommittees = (params?: Record<string, unknown>) => {
 
 export const getCommitteeSets = (params?: Record<string, unknown>) => {
   return client({
-    url: "/hrm/meeting-sets",
+    url: "/meeting/meeting-committee-sets",
     method: "GET",
     params: {
       ...params,

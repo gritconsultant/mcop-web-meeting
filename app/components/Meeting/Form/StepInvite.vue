@@ -199,7 +199,7 @@
             </template>
 
             <template #body="{ items: rows }">
-              <tr v-for="(row, index) in rows" :key="row.id">
+              <tr v-for="(row, index) in rows" :key="row.key">
                 <td>
                   <UCheckbox v-model="row.selected" />
                 </td>

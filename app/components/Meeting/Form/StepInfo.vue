@@ -1,6 +1,6 @@
 <template>
   <div
-    class="grid w-full grid-cols-1 items-start gap-5 xl:grid-cols-[min(100%,647px)_minmax(0,1fr)]"
+    class="grid w-full grid-cols-1 items-start gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]"
   >
     <section
       class="flex w-full min-w-0 flex-col gap-5 rounded-xl border border-[#afafaf] bg-white p-5"
@@ -70,61 +70,56 @@
       </h2>
 
       <div class="flex w-full flex-wrap items-end gap-4">
-        <div
-          class="flex min-w-[220px] flex-1 items-center gap-3 rounded-xl border border-[#afafaf] bg-white px-5 py-3"
-        >
+        <div class="grid w-full max-w-[70%] min-w-[280px] grid-cols-2 gap-4">
           <div
-            class="inline-flex size-10 shrink-0 items-center justify-center rounded-md bg-[#e6d1d1]"
-            aria-hidden="true"
+            class="flex min-w-0 items-center gap-3 rounded-xl border border-[#afafaf] bg-white px-5 py-3"
           >
-            <img
-              :src="attendeeStarIcon"
-              alt=""
-              class="block size-8"
-              width="32"
-              height="32"
-            />
-          </div>
-          <div class="flex min-w-0 flex-1 flex-col items-end gap-1.5">
-            <div class="w-full text-right text-sm font-normal text-[#222]">
-              ผู้เข้าประชุม (ท่าน)
+            <div
+              class="inline-flex size-10 shrink-0 items-center justify-center rounded-md bg-[#e6d1d1]"
+              aria-hidden="true"
+            >
+              <img
+                :src="attendeeStarIcon"
+                alt=""
+                class="block size-8"
+                width="32"
+                height="32"
+              />
             </div>
-            <div class="w-full text-right text-xl font-bold text-[#222]">
-              {{ members.length }}
+            <div class="flex min-w-0 flex-1 flex-col items-end gap-1.5">
+              <div class="w-full text-right text-sm font-normal text-[#222]">
+                ผู้เข้าประชุม (ท่าน)
+              </div>
+              <div class="w-full text-right text-xl font-bold text-[#222]">
+                {{ members.length }}
+              </div>
             </div>
           </div>
-        </div>
 
-        <div
-          class="flex min-w-[220px] flex-1 items-center gap-3 rounded-xl border border-[#afafaf] bg-white px-5 py-3"
-        >
           <div
-            class="inline-flex size-10 shrink-0 items-center justify-center rounded-md bg-[#e6d1d1]"
-            aria-hidden="true"
+            class="flex min-w-0 items-center gap-3 rounded-xl border border-[#afafaf] bg-white px-5 py-3"
           >
-            <img
-              :src="guestUsersIcon"
-              alt=""
-              class="block size-8"
-              width="32"
-              height="32"
-            />
-          </div>
-          <div class="flex min-w-0 flex-1 flex-col items-end gap-1.5">
-            <div class="w-full text-right text-sm font-normal text-[#222]">
-              ผู้เข้าร่วมประชุม (ท่าน)
+            <div
+              class="inline-flex size-10 shrink-0 items-center justify-center rounded-md bg-[#e6d1d1]"
+              aria-hidden="true"
+            >
+              <img
+                :src="guestUsersIcon"
+                alt=""
+                class="block size-8"
+                width="32"
+                height="32"
+              />
             </div>
-            <div class="w-full text-right text-xl font-bold text-[#222]">
-              {{ guests.length }}
+            <div class="flex min-w-0 flex-1 flex-col items-end gap-1.5">
+              <div class="w-full text-right text-sm font-normal text-[#222]">
+                ผู้เข้าร่วมประชุม (ท่าน)
+              </div>
+              <div class="w-full text-right text-xl font-bold text-[#222]">
+                {{ guests.length }}
+              </div>
             </div>
           </div>
-        </div>
-
-        <div
-          v-if="attendeeTab === 'guests'"
-          class="flex w-full items-center justify-end sm:ml-auto sm:w-auto"
-        >
-          <UCButton type="add" label="เพิ่มผู้เข้าร่วมประชุม" disabled />
         </div>
       </div>
 
@@ -182,7 +177,7 @@
             </template>
 
             <template #body="{ items: rows }">
-              <tr v-for="(row, index) in rows" :key="row.id">
+              <tr v-for="(row, index) in rows" :key="row.key">
                 <td class="meeting-form-table__col-index">{{ index + 1 }}</td>
                 <td class="is-left">{{ row.name }}</td>
                 <td class="is-left">{{ row.detail }}</td>

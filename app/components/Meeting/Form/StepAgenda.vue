@@ -30,40 +30,40 @@
         class="flex min-h-0 flex-1 flex-col overflow-auto"
       >
         <div
-          v-for="agenda in agendas"
-          :key="agenda.id"
+          v-for="(agenda, index) in agendas"
+          :key="agenda.key"
           class="flex flex-col items-start"
         >
           <button
             type="button"
             class="flex h-10 w-full items-center rounded px-3 py-2 text-left text-sm font-bold"
             :class="
-              agenda.id === selectedAgendaId
+              agenda.key === selectedAgendaKey
                 ? 'bg-[#edecec] text-[#222]'
                 : 'bg-transparent text-[#7c7c7c] hover:bg-[#fafafa]'
             "
-            @click="selectAgenda(agenda.id)"
+            @click="selectAgenda(agenda.key)"
           >
             <span class="truncate">{{ agenda.label }}</span>
           </button>
 
-          <template v-if="agenda.id === selectedAgendaId">
+          <template v-if="agenda.key === selectedAgendaKey">
             <button
               v-for="(topic, topicIndex) in agenda.topics"
-              :key="topic.id"
+              :key="topic.key"
               type="button"
               class="ml-3 flex h-10 w-[256px] max-w-[256px] items-center pl-3 text-left text-sm"
               :class="
-                topic.id === selectedTopicId
+                topic.key === selectedTopicKey
                   ? 'bg-[#f6f6f6] text-[#222]'
                   : 'rounded bg-white text-[#7c7c7c] hover:bg-[#fafafa]'
               "
-              @click="selectTopic(agenda.id, topic.id)"
+              @click="selectTopic(agenda.key, topic.key)"
             >
               <span
                 class="flex h-full min-w-0 flex-1 items-center border-l-2 py-1 pl-2.5 pr-1"
                 :class="
-                  topic.id === selectedTopicId
+                  topic.key === selectedTopicKey
                     ? 'border-[#222]'
                     : 'border-[#afafaf]'
                 "
@@ -78,7 +78,7 @@
               <button
                 type="button"
                 class="inline-flex h-8 items-center justify-center gap-2 rounded-md border-[0.7px] border-[#7c7c7c] bg-white px-4 text-sm font-bold text-[#0066da]"
-                @click="onAddTopic(agenda.id)"
+                @click="onAddTopic(agenda.key)"
               >
                 <UIcon name="i-lucide-plus" class="size-5" />
                 เพิ่มเรื่อง
@@ -181,51 +181,53 @@ const agendas = defineModel<MeetingAgendaDraft[]>("agendas", {
   required: true,
 });
 
-const selectedAgendaId = ref<string | null>(null);
-const selectedTopicId = ref<string | null>(null);
+const selectedAgendaKey = ref<string | null>(null);
+const selectedTopicKey = ref<string | null>(null);
 const navCollapsed = ref(false);
 
 const selectedAgenda = computed(
-  () => agendas.value.find((a) => a.id === selectedAgendaId.value) ?? null,
+  () => agendas.value.find((a) => a.key === selectedAgendaKey.value) ?? null,
 );
 
 const selectedTopic = computed(() => {
   const agenda = selectedAgenda.value;
   if (!agenda) return null;
-  return agenda.topics.find((t) => t.id === selectedTopicId.value) ?? null;
+  return agenda.topics.find((t) => t.key === selectedTopicKey.value) ?? null;
 });
 
 const selectedTopicIndex = computed(() => {
   const agenda = selectedAgenda.value;
-  if (!agenda || !selectedTopicId.value) return 0;
-  const index = agenda.topics.findIndex((t) => t.id === selectedTopicId.value);
+  if (!agenda || !selectedTopicKey.value) return 0;
+  const index = agenda.topics.findIndex(
+    (t) => t.key === selectedTopicKey.value,
+  );
   return index >= 0 ? index : 0;
 });
 
-const selectAgenda = (agendaId: string) => {
-  selectedAgendaId.value = agendaId;
-  const first = agendas.value.find((a) => a.id === agendaId)?.topics[0];
-  selectedTopicId.value = first?.id ?? null;
+const selectAgenda = (agendaKey: string) => {
+  selectedAgendaKey.value = agendaKey;
+  const first = agendas.value.find((a) => a.key === agendaKey)?.topics[0];
+  selectedTopicKey.value = first?.key ?? null;
 };
 
-const selectTopic = (agendaId: string, topicId: string) => {
-  selectedAgendaId.value = agendaId;
-  selectedTopicId.value = topicId;
+const selectTopic = (agendaKey: string, topicKey: string) => {
+  selectedAgendaKey.value = agendaKey;
+  selectedTopicKey.value = topicKey;
 };
 
 const onAddAgenda = () => {
   const no = agendas.value.length + 1;
-  const agendaId = `agenda-${Date.now()}`;
-  const topicId = `topic-${Date.now()}`;
+  const agendaKey = createDraftKey();
+  const topicKey = createDraftKey();
   agendas.value = [
     ...agendas.value,
     {
-      id: agendaId,
+      key: agendaKey,
       label: `ระเบียบวาระที่ ${no} เรื่องอื่น ๆ`,
       agendaType: "other",
       topics: [
         {
-          id: topicId,
+          key: topicKey,
           title: "",
           detail: "",
           files: [],
@@ -233,49 +235,53 @@ const onAddAgenda = () => {
       ],
     },
   ];
-  selectedAgendaId.value = agendaId;
-  selectedTopicId.value = topicId;
+  selectedAgendaKey.value = agendaKey;
+  selectedTopicKey.value = topicKey;
 };
 
-const onAddTopic = (agendaId: string) => {
-  const agenda = agendas.value.find((a) => a.id === agendaId);
+const onAddTopic = (agendaKey: string) => {
+  const agenda = agendas.value.find((a) => a.key === agendaKey);
   if (!agenda) return;
-  const topicId = `topic-${Date.now()}`;
+  const topicKey = createDraftKey();
   agenda.topics.push({
-    id: topicId,
+    key: topicKey,
     title: "",
     detail: "",
     files: [],
   });
-  selectedAgendaId.value = agendaId;
-  selectedTopicId.value = topicId;
+  selectedAgendaKey.value = agendaKey;
+  selectedTopicKey.value = topicKey;
 };
 
 const onDeleteAgenda = () => {
-  if (!selectedAgendaId.value) return;
-  agendas.value = agendas.value.filter((a) => a.id !== selectedAgendaId.value);
+  if (!selectedAgendaKey.value) return;
+  agendas.value = agendas.value.filter(
+    (a) => a.key !== selectedAgendaKey.value,
+  );
 };
 
 const onDeleteTopic = () => {
   const agenda = selectedAgenda.value;
-  if (!agenda || !selectedTopicId.value) return;
-  agenda.topics = agenda.topics.filter((t) => t.id !== selectedTopicId.value);
-  selectedTopicId.value = agenda.topics[0]?.id ?? null;
+  if (!agenda || !selectedTopicKey.value) return;
+  agenda.topics = agenda.topics.filter(
+    (t) => t.key !== selectedTopicKey.value,
+  );
+  selectedTopicKey.value = agenda.topics[0]?.key ?? null;
 };
 
 watch(
   agendas,
   (rows) => {
     if (!rows.length) {
-      selectedAgendaId.value = null;
-      selectedTopicId.value = null;
+      selectedAgendaKey.value = null;
+      selectedTopicKey.value = null;
       return;
     }
     if (
-      !selectedAgendaId.value ||
-      !rows.some((r) => r.id === selectedAgendaId.value)
+      !selectedAgendaKey.value ||
+      !rows.some((r) => r.key === selectedAgendaKey.value)
     ) {
-      selectAgenda(rows[0]!.id);
+      selectAgenda(rows[0]!.key);
     }
   },
   { immediate: true, deep: true },

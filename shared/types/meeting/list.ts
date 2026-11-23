@@ -1,7 +1,6 @@
 import type { MeetingCommitteeRef, MeetingSetRef } from "./committee";
 import type { MeetingStatus } from "./status";
 
-/** แถวจาก GET /meeting/meetings */
 export interface MeetingListApiRow {
   id: string;
   meeting_committee_id: string;
@@ -17,11 +16,10 @@ export interface MeetingListApiRow {
   approved_topic_count: number;
   created_at: string;
   updated_at: string;
-  meeting_committee: MeetingCommitteeRef;
-  meeting_set: MeetingSetRef;
+  meeting_committee: MeetingCommitteeRef | null;
+  meeting_set: MeetingSetRef | null;
 }
 
-/** แถวในตารางระเบียบการประชุม */
 export interface MeetingListItem {
   id: string;
   meetingNo: string;

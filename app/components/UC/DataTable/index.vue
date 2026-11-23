@@ -7,7 +7,6 @@
       <div class="relative">
         <UCSkeletonOverlay v-if="loading && items.length" />
 
-        <!-- โหลดครั้งแรก: หัวตารางจริง + skeleton เฉพาะแถว -->
         <table
           v-if="loading && !items.length"
           class="hrm-table"
@@ -51,10 +50,9 @@
 
         <div
           v-else
-          class="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center"
+          class="flex items-center justify-center px-6 py-16 text-center"
         >
           <slot name="empty">
-            <UIcon name="i-lucide-inbox" class="size-10 text-neutral-300" />
             <p class="font-medium text-neutral-700">ไม่พบข้อมูล</p>
           </slot>
         </div>
@@ -83,7 +81,6 @@ const props = withDefaults(
     loading?: boolean;
     pagination?: PaginationMeta;
     showPagination?: boolean;
-    /** จำนวนแถว skeleton — ใช้ค่าน้อย (3) เพื่อไม่ดูยาวเกินตอนข้อมูลจริงน้อย */
     skeletonRows?: number;
     skeletonColumns?: number;
     skeletonColumnVariants?: ColumnVariant[];

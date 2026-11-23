@@ -76,10 +76,12 @@
 </template>
 
 <script setup lang="ts">
+import { reactive, ref, onMounted } from "vue";
 import type {
   MeetingListApiRow,
   MeetingListFilters,
   MeetingListItem,
+  MeetingListQuery,
   MeetingStatus,
 } from "#shared/types/meeting";
 import { MEETING_STATUS_LABEL } from "#shared/types/meeting";
@@ -87,7 +89,6 @@ import { usePagination } from "~/composables/usePagination";
 import service from "~/service";
 import addIcon from "~/assets/icon/meeting/add-plus.svg";
 
-/** mock ตาม Figma 932:83618 — ใช้เมื่อ API ว่างหรือ error */
 const MEETING_LIST_MOCK: MeetingListApiRow[] = [
   {
     id: "c3d4e5f6-a7b8-4c9d-90e1-f2a3b4c5d6e8",
@@ -229,11 +230,14 @@ const parseMeetingNo = (raw: string): number | undefined => {
   return Number.isInteger(n) && n >= 1 ? n : undefined;
 };
 
-const query = reactive({
+const query = reactive<MeetingListQuery>({
   from: 0,
   size: 5,
   sort_by: "start_at",
   order_by: "desc",
+  meeting_no: undefined,
+  meeting_date: undefined,
+  location: undefined,
 });
 
 const { pagination, setPagination, applyPage, applyPageSize } = usePagination(
@@ -249,58 +253,41 @@ const filters = ref<MeetingListFilters>({
 const items = ref<MeetingListItem[]>([]);
 const usingMock = ref(false);
 
+const syncFiltersToQuery = () => {
+  query.meeting_no = parseMeetingNo(filters.value.meetingNo);
+  const meetingDate = filters.value.meetingDate?.trim();
+  query.meeting_date = meetingDate ? meetingDate.slice(0, 10) : undefined;
+  const location = filters.value.location.trim();
+  query.location = location || undefined;
+};
+
 const fetchList = async () => {
   loading.value = true;
-  // TODO: เปิดยิงจริงทีหลัง (กัน 401)
-  usingMock.value = true;
-  applyMockPage();
-  loading.value = false;
+  usingMock.value = false;
+  syncFiltersToQuery();
 
-  // usingMock.value = false;
-
-  // const params: Record<string, unknown> = {
-  //   from: query.from,
-  //   size: query.size,
-  //   sort_by: query.sort_by,
-  //   order_by: query.order_by,
-  // };
-
-  // const meetingNo = parseMeetingNo(filters.value.meetingNo);
-  // if (meetingNo != null) params.meeting_no = meetingNo;
-
-  // const meetingDate = filters.value.meetingDate?.trim();
-  // if (meetingDate) params.meeting_date = meetingDate.slice(0, 10);
-
-  // const location = filters.value.location.trim();
-  // if (location) params.location = location;
-
-  // try {
-  //   const resp = await service.meeting.getMeetings(params);
-  //   const { data, code, paginate } = resp as any;
-  //   if (code == "200") {
-  //     const rows = Array.isArray(data) ? data : [];
-  //     if (!rows.length) {
-  //       usingMock.value = true;
-  //       applyMockPage();
-  //       return;
-  //     }
-  //     items.value = rows.map((e: any) => mapRow(e));
-  //   } else {
-  //     items.value = [];
-  //   }
-  //   setPagination(paginate ?? { from: 0, size: query.size, total: 0 });
-  // } catch (err: any) {
-  //   usingMock.value = true;
-  //   applyMockPage();
-  //   showAlert({
-  //     type: "warning",
-  //     title: (err && "ดึงข้อมูลไม่สำเร็จ") || "",
-  //     text: err?.message || "",
-  //     isToast: true,
-  //   });
-  // } finally {
-  //   loading.value = false;
-  // }
+  try {
+    const resp = await service.meeting.getMeetings({ ...query });
+    const { data, code, paginate } = resp as any;
+    if (code == "200") {
+      const rows = Array.isArray(data) ? data : [];
+      items.value = rows.map((e: any) => mapRow(e));
+    } else {
+      items.value = [];
+    }
+    setPagination(paginate ?? { from: 0, size: query.size, total: 0 });
+  } catch (err: any) {
+    items.value = [];
+    setPagination({ from: 0, size: query.size, total: 0 });
+    showAlert({
+      type: "warning",
+      title: (err && "ดึงข้อมูลไม่สำเร็จ") || "",
+      text: err?.message || "",
+      isToast: true,
+    });
+  } finally {
+    loading.value = false;
+  }
 };
 
 const applyMockPage = () => {
