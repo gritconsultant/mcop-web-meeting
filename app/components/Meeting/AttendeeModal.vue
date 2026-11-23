@@ -93,8 +93,8 @@ const getList = async () => {
   loading.value = true;
   try {
     const [m, g] = (await Promise.all([
-      service.meeting.getMembers(id),
-      service.meeting.getGuests(id),
+      service.meeting.getMeetingMembers(id),
+      service.meeting.getMeetingGuests(id),
     ])) as [ApiResponse<MeetingMember[]>, ApiResponse<MeetingGuest[]>];
     if (id !== props.meetingId) return;
     members.value = m.data;

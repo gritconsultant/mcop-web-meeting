@@ -183,7 +183,7 @@ const getInfo = async () => {
   meeting.value = undefined;
   loadFailed.value = false;
   try {
-    const resp = (await service.meeting.getInfo(
+    const resp = (await service.meeting.getMeeting(
       id,
     )) as ApiResponse<MeetingDetail>;
     if (id !== String(route.params.id)) return;

@@ -7,17 +7,33 @@
       <div class="relative">
         <UCSkeletonOverlay v-if="loading && items.length" />
 
-        <UCSkeletonTable
+        <table
           v-if="loading && !items.length"
-          :rows="skeletonRows"
-          :columns="skeletonColumns"
-          :column-variants="skeletonColumnVariants"
+          class="hrm-table"
         >
-          <template v-if="$slots.header" #header>
+          <thead>
             <slot name="header" />
-          </template>
-          <slot v-if="$slots.skeleton" name="skeleton" />
-        </UCSkeletonTable>
+          </thead>
+          <tbody>
+            <tr
+              v-for="row in skeletonRows"
+              :key="`skeleton-row-${row}`"
+            >
+              <td
+                v-for="col in skeletonColumns"
+                :key="`skeleton-col-${row}-${col}`"
+                :class="skeletonCellClass(col)"
+              >
+                <UCSkeleton
+                  :width="skeletonWidth(col)"
+                  :height="skeletonHeight(col)"
+                  rounded="sm"
+                  :delay="row * 45 + col * 30"
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
         <table
           v-else-if="items.length"
@@ -34,10 +50,9 @@
 
         <div
           v-else
-          class="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center"
+          class="flex items-center justify-center px-6 py-16 text-center"
         >
           <slot name="empty">
-            <UIcon name="i-lucide-inbox" class="size-10 text-neutral-300" />
             <p class="font-medium text-neutral-700">ไม่พบข้อมูล</p>
           </slot>
         </div>
@@ -58,7 +73,9 @@
 <script setup lang="ts" generic="T">
 import type { PaginationMeta } from "#shared/types/pagination";
 
-withDefaults(
+type ColumnVariant = "text" | "amount" | "badge" | "action" | "line";
+
+const props = withDefaults(
   defineProps<{
     items: T[];
     loading?: boolean;
@@ -66,15 +83,13 @@ withDefaults(
     showPagination?: boolean;
     skeletonRows?: number;
     skeletonColumns?: number;
-    skeletonColumnVariants?: Array<
-      "text" | "amount" | "badge" | "action" | "line"
-    >;
+    skeletonColumnVariants?: ColumnVariant[];
     pageSizes?: number[];
   }>(),
   {
     loading: false,
     showPagination: true,
-    skeletonRows: 10,
+    skeletonRows: 3,
     skeletonColumns: 8,
     pageSizes: () => [5, 10, 20, 30, 50],
   },
@@ -93,4 +108,50 @@ const emit = defineEmits<{
   pageChange: [from: number];
   pageSizeChange: [size: number];
 }>();
+
+const DEFAULT_VARIANTS_8: ColumnVariant[] = [
+  "line",
+  "text",
+  "text",
+  "text",
+  "text",
+  "amount",
+  "badge",
+  "action",
+];
+
+const resolvedVariants = computed(() => {
+  if (props.skeletonColumnVariants?.length) return props.skeletonColumnVariants;
+  if (props.skeletonColumns === 8) return DEFAULT_VARIANTS_8;
+  return Array.from(
+    { length: props.skeletonColumns },
+    () => "text" as ColumnVariant,
+  );
+});
+
+const variantForColumn = (col: number) =>
+  resolvedVariants.value[col - 1] ?? "text";
+
+const skeletonCellClass = (col: number) => {
+  const variant = variantForColumn(col);
+  if (variant === "action" || variant === "badge" || variant === "line") {
+    return "is-center";
+  }
+  if (variant === "amount") return "is-center";
+  return "is-left";
+};
+
+const skeletonWidth = (col: number) => {
+  const variant = variantForColumn(col);
+  if (variant === "action" || variant === "badge") return "56px";
+  if (variant === "line") return "24px";
+  if (variant === "amount") return "64px";
+  return "72%";
+};
+
+const skeletonHeight = (col: number) => {
+  const variant = variantForColumn(col);
+  if (variant === "badge" || variant === "action") return "28px";
+  return "14px";
+};
 </script>

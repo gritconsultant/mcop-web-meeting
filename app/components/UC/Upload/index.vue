@@ -2,14 +2,13 @@
   <div class="uc-upload">
     <h3
       v-if="title"
-      class="mb-4 rounded-sm border border-[#afafaf] bg-[#f8f8f8] px-2 py-1 text-lg font-semibold"
+      class="m-0 mb-1.5 py-1 text-xl font-bold leading-tight text-[#222]"
     >
       {{ title }}
     </h3>
 
     <div
-      class="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] justify-center gap-5"
-      :class="title ? 'mt-2' : ''"
+      class="flex flex-wrap items-start gap-3"
     >
       <div
         v-for="(file, index) in currentlyFiles"

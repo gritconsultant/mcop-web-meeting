@@ -1,8 +1,8 @@
 <template>
   <label :for="inputId" class="block">
     <div
-      class="flex h-[130px] w-[130px] cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed text-[#3181ED]"
-      :class="hasError ? 'border-red-500' : 'border-[#449cff]'"
+      class="flex size-[130px] cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed"
+      :class="hasError ? 'border-red-500 text-red-500' : 'border-[#449cff] text-[#0066da]'"
     >
       <input
         :id="inputId"
@@ -17,15 +17,17 @@
         <UIcon name="i-lucide-loader-2" class="size-8 animate-spin" />
       </div>
 
-      <div v-else class="flex flex-col items-center justify-center">
-        <UIcon name="i-lucide-upload" class="size-[18px]" />
-        <span class="text-[10px]">{{ placeholder }}</span>
+      <div v-else class="flex flex-col items-center justify-center gap-1.5">
+        <img :src="uploadIcon" alt="" class="size-6" />
+        <span class="text-xs text-[#0066da]">{{ placeholder }}</span>
       </div>
     </div>
   </label>
 </template>
 
 <script setup lang="ts">
+import uploadIcon from "~/assets/icon/file/upload.svg";
+
 withDefaults(
   defineProps<{
     inputId: string;

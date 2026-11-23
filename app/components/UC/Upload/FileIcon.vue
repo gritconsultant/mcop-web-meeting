@@ -1,23 +1,28 @@
 <template>
-  <UIcon
+  <img
     v-if="type === 'pdf'"
-    name="i-lucide-file-text"
-    class="size-12 text-red-500"
+    :src="pdfIcon"
+    alt="PDF"
+    class="size-8"
+  />
+  <img
+    v-else-if="type === 'xlsx' || type === 'xls'"
+    :src="excelIcon"
+    alt="Excel"
+    class="size-8"
   />
   <UIcon
-    v-else-if="type === 'xlsx'"
-    name="i-lucide-file-spreadsheet"
-    class="size-12 text-emerald-600"
-  />
-  <UIcon
-    v-else-if="type === 'docx'"
+    v-else-if="type === 'docx' || type === 'doc'"
     name="i-lucide-file-text"
-    class="size-12 text-blue-600"
+    class="size-8 text-blue-600"
   />
-  <UIcon v-else name="i-lucide-file" class="size-12 text-neutral-400" />
+  <UIcon v-else name="i-lucide-file" class="size-8 text-neutral-400" />
 </template>
 
 <script setup lang="ts">
+import pdfIcon from "~/assets/icon/file/pdf.svg";
+import excelIcon from "~/assets/icon/file/excel.svg";
+
 defineProps<{
   type: string;
 }>();

@@ -1,12 +1,12 @@
 <template>
   <div
-    class="relative flex h-[130px] w-[130px] flex-col items-center justify-between rounded border border-[#afafaf] p-2 text-[#3181ED]"
+    class="relative flex size-[130px] flex-col items-center justify-end gap-1.5 rounded-lg border-[0.7px] border-[#afafaf] bg-white p-2 text-[#3181ED]"
     :class="cardClass"
   >
     <button
       v-if="removable"
       type="button"
-      class="absolute -top-2.5 -right-2 flex size-4 items-center justify-center rounded-full bg-red-500 text-white transition-transform hover:scale-125"
+      class="absolute -top-2.5 -right-2 z-10 flex size-[21px] items-center justify-center rounded-full bg-[#f95454] text-white transition-transform hover:scale-110"
       @click.stop="$emit('remove')"
     >
       <UIcon name="i-lucide-x" class="size-3" />
@@ -16,20 +16,30 @@
       :href="href"
       target="_blank"
       rel="noopener noreferrer"
-      class="flex h-full w-full items-center justify-center overflow-hidden border-none outline-none"
+      class="flex min-h-0 w-full flex-1 items-center justify-center overflow-hidden border-none outline-none"
     >
       <img
         v-if="isImage"
         :src="href"
-        class="h-full w-full rounded object-cover"
+        class="size-full rounded object-cover"
         @error="onImageError"
       />
       <UCUploadFileIcon v-else :type="resolvedType" />
     </a>
 
-    <div v-if="showMeta" class="flex flex-col gap-1 text-center">
-      <span class="address-cell text-[10px] text-gray-500">{{ name }}</span>
-      <span class="address-cell text-[10px] text-gray-500">{{ sizeLabel }}</span>
+    <div v-if="showMeta" class="flex w-full flex-col items-start justify-center">
+      <span
+        v-if="name"
+        class="address-cell w-full text-left text-[10px] text-[#222]"
+      >
+        {{ name }}
+      </span>
+      <span
+        v-if="sizeLabel"
+        class="address-cell w-full text-left text-[10px] text-[#7c7c7c]"
+      >
+        {{ sizeLabel }}
+      </span>
     </div>
   </div>
 </template>
@@ -59,7 +69,7 @@ const resolvedType = computed(
 );
 
 const isImage = computed(() => isImageExtension(resolvedType.value));
-const showMeta = computed(() => !isImage.value && (props.name || props.sizeLabel));
+const showMeta = computed(() => Boolean(props.name || props.sizeLabel));
 
 const onImageError = (event: Event) => {
   const target = event.target as HTMLImageElement;
@@ -69,7 +79,7 @@ const onImageError = (event: Event) => {
 
 <style scoped>
 .address-cell {
-  max-width: 96px;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

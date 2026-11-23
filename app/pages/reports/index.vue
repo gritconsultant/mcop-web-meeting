@@ -109,7 +109,7 @@
 
 <script setup lang="ts">
 import type { ApiResponse } from "#shared/types/api";
-import type { MeetingListItem, QueryMeetings } from "#shared/types/meeting";
+import type { ReportListItem, QueryMeetings } from "#shared/types/meeting";
 import type { PaginateSlice } from "#shared/types/pagination";
 import type { StatusTone } from "#shared/types/status";
 import service from "~/service";
@@ -155,7 +155,7 @@ const query = reactive<QueryMeetings>({
 const { pagination, setPagination, applyPage, applyPageSize } =
   usePagination(10);
 
-const rows = ref<MeetingListItem[]>([]);
+const rows = ref<ReportListItem[]>([]);
 const loading = ref(false);
 
 const getList = async () => {
@@ -163,7 +163,7 @@ const getList = async () => {
   try {
     const resp = (await service.meeting.getMeetings({
       ...query,
-    })) as ApiResponse<MeetingListItem[]> & {
+    })) as ApiResponse<ReportListItem[]> & {
       paginate: PaginateSlice;
     };
     rows.value = resp.data;

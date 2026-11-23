@@ -1,10 +1,7 @@
 <template>
   <div class="skeleton-page skeleton-page--detail min-h-[260px]">
     <div class="flex flex-wrap items-center justify-between gap-3">
-      <div class="flex items-center gap-2">
-        <div class="h-5 w-1 rounded bg-[#0066DA]" />
-        <UCSkeleton variant="title" width="200px" height="20px" />
-      </div>
+      <UCSkeleton variant="title" width="200px" height="20px" />
       <div class="flex gap-2">
         <UCSkeleton variant="button" width="88px" height="32px" />
         <UCSkeleton variant="button" width="88px" height="32px" />
