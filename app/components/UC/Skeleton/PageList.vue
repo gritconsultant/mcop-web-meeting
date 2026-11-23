@@ -1,10 +1,7 @@
 <template>
   <div class="skeleton-page skeleton-page--list">
     <div class="flex items-center justify-between gap-3">
-      <div class="flex items-center gap-2">
-        <div class="h-5 w-1 rounded bg-[#0066DA]" />
-        <UCSkeleton variant="title" width="180px" height="20px" />
-      </div>
+      <UCSkeleton variant="title" width="180px" height="20px" />
       <UCSkeleton variant="button" width="120px" height="36px" />
     </div>
 
@@ -35,7 +32,6 @@ type ColumnVariant = "text" | "amount" | "badge" | "action" | "line";
 
 withDefaults(
   defineProps<{
-    /** จำนวนแถว skeleton — ใช้ค่าน้อยเพื่อไม่กระตุกตอนข้อมูลจริงน้อย */
     rows?: number;
     columns?: number;
     filters?: number;

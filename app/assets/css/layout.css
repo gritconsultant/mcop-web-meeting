@@ -325,6 +325,208 @@
   margin-left: auto;
 }
 
+/* ─── Meeting list page (Figma 910:47206) ─────────────── */
+.meeting-list-page {
+  min-width: 0;
+}
+
+.meeting-list-page__card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  background: #fff;
+}
+
+.meeting-list-page__title {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 4px 0 4px 16px;
+  border-left: 4px solid #0066da;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #222;
+}
+
+.meeting-list-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px 20px;
+}
+
+.meeting-list-filter__fields {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 20px;
+}
+
+.meeting-list-filter__field {
+  width: 206px;
+}
+
+.meeting-list-filter__field :deep([data-slot="label"]) {
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 400;
+  color: #222;
+}
+
+.meeting-list-filter__field :deep(input),
+.meeting-list-filter__field :deep(.input-infomation) {
+  height: 40px;
+  border-radius: 6px;
+}
+
+.meeting-list-filter__trailing {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.meeting-list-filter__add {
+  display: inline-flex;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 16px;
+  border: 0.7px solid #7c7c7c;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0066da;
+  white-space: nowrap;
+}
+
+.meeting-list-filter__add:hover {
+  background: #f8fbff;
+}
+
+.meeting-list-filter__add-icon {
+  display: block;
+  width: 24px;
+  height: 24px;
+}
+
+.meeting-list-table .hrm-table thead th {
+  height: 50px;
+  padding: 5px 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #4c4c4c;
+  background: #fafafa;
+  border: none;
+}
+
+.meeting-list-table .hrm-table tbody td {
+  padding: 5px 8px;
+  font-size: 14px;
+  font-weight: 400;
+  color: #4c4c4c;
+  border: 0.7px solid #e5e5e5;
+  background: #fff;
+}
+
+.meeting-list-table .hrm-table tbody tr:hover td {
+  background: #fcfcfc;
+}
+
+.meeting-list-table .hrm-data-table .hrm-table tbody tr:last-child td {
+  border-bottom: 0.7px solid #e5e5e5;
+}
+
+.meeting-list-table .hrm-pagination {
+  padding: 12px 0 0;
+  border-top: none;
+}
+
+.meeting-list-table .hrm-pagination__text {
+  font-size: 14px;
+  color: #222;
+}
+
+.meeting-list-table .hrm-pagination__select {
+  min-width: 56px;
+  height: 28px;
+  padding: 0 28px 0 10px;
+  font-size: 12px;
+  color: #7c7c7c;
+  border: 1px solid #afafaf;
+  border-radius: 6px;
+}
+
+.meeting-list-table .hrm-pagination__nav,
+.meeting-list-table .hrm-pagination__page {
+  min-width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  color: #4c4c4c;
+}
+
+.meeting-list-table .hrm-pagination__page.is-active {
+  color: #fff;
+  background: #333;
+}
+
+.meeting-list-table__view {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.meeting-list-table__view img {
+  display: block;
+  width: 32px;
+  height: 32px;
+}
+
+/* ─── Meeting status badge ────────────────────────────── */
+.meeting-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 28px;
+  padding: 4px 10px;
+  border-radius: 32px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.meeting-status--completed {
+  color: #008e6d;
+  background-color: #d5feef;
+}
+
+.meeting-status--meeting {
+  color: #0066da;
+  background-color: #e8f1ff;
+}
+
+.meeting-status--waiting,
+.meeting-status--ended {
+  color: #ff6e00;
+  background-color: #fff4df;
+}
+
+.meeting-status--draft {
+  color: #919191;
+  background-color: #f2f2f2;
+}
+
 /* ─── Agenda tree ─────────────────────────────────────── */
 .uc-agenda {
   border: 1px solid #e4e7ed;
@@ -406,4 +608,302 @@
   text-align: center;
   font-size: 0.875rem;
   color: #7c7c7c;
+}
+
+/* ─── Meeting form multi-step (Figma 932:83617) ────────── */
+.meeting-form-page {
+  width: 100%;
+  min-width: 0;
+}
+
+.meeting-form-page__card {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  background: #fff;
+}
+
+.meeting-form-page__title {
+  display: flex;
+  width: 100%;
+  min-height: 40px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0 4px 16px;
+  border-left: 4px solid #0066da;
+}
+
+.meeting-form-page__title h1 {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #222;
+}
+
+.meeting-form-page__body {
+  width: 100%;
+  min-width: 0;
+  min-height: 320px;
+}
+
+.meeting-form-page__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.meeting-form-page__footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.meeting-form-divider {
+  width: 100%;
+  height: 1px;
+  background: #e8e8e8;
+}
+
+.meeting-form-stepper {
+  display: flex;
+  justify-content: center;
+  padding: 0;
+}
+
+.meeting-form-stepper__list {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.meeting-form-stepper__item {
+  position: relative;
+  width: 95px;
+  flex-shrink: 0;
+}
+
+.meeting-form-stepper__line {
+  position: absolute;
+  top: 20px;
+  left: calc(50% + 20px);
+  width: calc(50% - 20px + 12px + 50% - 20px);
+  height: 1.7px;
+  background: #afafaf;
+}
+
+.meeting-form-stepper__item.is-done .meeting-form-stepper__line,
+.meeting-form-stepper__line.is-passed {
+  background: #008e6d;
+}
+
+.meeting-form-stepper__btn {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.meeting-form-stepper__btn:disabled {
+  cursor: default;
+}
+
+.meeting-form-stepper__circle {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border: 1.7px solid #afafaf;
+  border-radius: 999px;
+  background: #f6f6f6;
+  color: #afafaf;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.meeting-form-stepper__item.is-active .meeting-form-stepper__circle {
+  border-color: #008e6d;
+  background: #d5feef;
+  color: #008e6d;
+}
+
+.meeting-form-stepper__item.is-done .meeting-form-stepper__circle {
+  border: 0;
+  background: #008e6d;
+  color: #fff;
+}
+
+.meeting-form-stepper__label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 120px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #afafaf;
+  white-space: normal;
+}
+
+.meeting-form-stepper__line-text {
+  display: block;
+}
+
+.meeting-form-stepper__item.is-active .meeting-form-stepper__label {
+  color: #222;
+}
+
+.meeting-form-stepper__item.is-done .meeting-form-stepper__label {
+  color: #008e6d;
+}
+
+/* Shared title used by agenda/review steps */
+.meeting-form-panel__title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #222;
+}
+
+/* Deep overrides for UCDataTable internals (cannot express via Tailwind on parent) */
+.meeting-form-table {
+  min-width: 0;
+}
+
+.meeting-form-table .hrm-data-table,
+.meeting-form-table .hrm-data-table__scroll {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.meeting-form-table .hrm-table {
+  width: 100%;
+  min-width: 520px;
+  table-layout: fixed;
+}
+
+.meeting-form-table .hrm-table thead th,
+.meeting-form-table .hrm-table tbody td {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  vertical-align: middle;
+}
+
+.meeting-form-table .hrm-table thead th {
+  height: 50px;
+  min-height: 50px;
+  padding: 5px 8px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #222;
+  background: #f6f6f6;
+  border: none;
+}
+
+.meeting-form-table .hrm-table tbody td {
+  height: 50px;
+  min-height: 50px;
+  padding: 5px 8px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: #222;
+  border: 0.7px solid #afafaf;
+  background: #fff;
+}
+
+.meeting-form-table__col-index {
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
+  white-space: nowrap !important;
+  text-align: center;
+}
+
+.meeting-form-table .hrm-table tbody tr:hover td {
+  background: #fcfcfc;
+}
+
+.meeting-form-table .hrm-data-table .hrm-table tbody tr:last-child td {
+  border-bottom: 0.7px solid #e5e5e5;
+}
+
+.meeting-form-agenda {
+  min-height: 520px;
+}
+
+.meeting-form-review {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.meeting-form-review__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px 20px;
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .meeting-form-review__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.meeting-form-review__grid dt {
+  font-size: 14px;
+  color: #7c7c7c;
+}
+
+.meeting-form-review__grid dd {
+  margin: 4px 0 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #222;
+}
+
+.meeting-form-review__agendas {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.meeting-form-review__agenda {
+  padding: 12px 14px;
+  border: 1px solid #afafaf;
+  border-radius: 12px;
+}
+
+.meeting-form-review__agenda ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  color: #4c4c4c;
+  font-size: 14px;
 }

@@ -1,329 +1,355 @@
 <template>
-  <div class="space-y-4">
-    <UCBreadcrumb
-      :items="[{ label: 'ระเบียบการประชุม' }]"
-    />
+  <div class="meeting-list-page">
+    <div class="meeting-list-page__card">
+      <div class="meeting-list-page__title">ระเบียบการประชุม</div>
 
-    <UCPageHeader title="ระเบียบการประชุม">
-      <template #actions>
-        <UCButton
-          type="outline"
-          label="ทดลอง dialog สำเร็จ"
-          @click="onDemoSuccess"
-        />
-        <UCButton
-          type="add"
-          label="เพิ่มวาระการประชุม"
-          icon="i-lucide-plus"
-          @click="onAddMeeting"
-        />
-      </template>
-    </UCPageHeader>
+      <div class="meeting-list-filter">
+        <div class="meeting-list-filter__fields">
+          <UCFormField
+            label="ครั้งที่"
+            name="meeting_no"
+            class="meeting-list-filter__field"
+          >
+            <UCInput
+              v-model="filters.meetingNo"
+              placeholder="กรอกครั้งที่"
+              @keyup.enter="onSearch"
+            />
+          </UCFormField>
 
-    <UCFilterPanel variant="inline">
-      <UCFormField label="ครั้งที่" name="meeting_no" class="w-[160px]">
-        <UCInput
-          v-model="filters.meetingNo"
-          placeholder="เช่น 6/2568"
-          @keyup.enter="onSearch"
-        />
-      </UCFormField>
+          <UCFormField
+            label="วันที่ประชุม"
+            name="meeting_date"
+            class="meeting-list-filter__field"
+          >
+            <UCInputDatePicker
+              v-model="filters.meetingDate"
+              placeholder="เลือกวันที่ประชุม"
+              mode="date"
+            />
+          </UCFormField>
 
-      <UCFormField label="วันที่ประชุม" name="meeting_date" class="w-[200px]">
-        <UCInput
-          v-model="filters.meetingDate"
-          placeholder="เลือกวันที่"
-          @keyup.enter="onSearch"
-        />
-      </UCFormField>
+          <UCFormField
+            label="สถานที่"
+            name="location"
+            class="meeting-list-filter__field"
+          >
+            <UCInput
+              v-model="filters.location"
+              placeholder="กรอกสถานที่"
+              @keyup.enter="onSearch"
+            />
+          </UCFormField>
 
-      <UCFormField label="สถานที่" name="location" class="w-[220px]">
-        <UCInput
-          v-model="filters.location"
-          placeholder="สถานที่ประชุม"
-          @keyup.enter="onSearch"
-        />
-      </UCFormField>
+          <UCButton type="search" label="ค้นหา" @click="onSearch" />
+        </div>
 
-      <template #actions>
-        <UCButton type="search" label="ค้นหา" @click="onSearch" />
-      </template>
-    </UCFilterPanel>
+        <div class="meeting-list-filter__trailing">
+          <button
+            type="button"
+            class="meeting-list-filter__add"
+            @click="onAddMeeting"
+          >
+            <img
+              :src="addIcon"
+              alt=""
+              class="meeting-list-filter__add-icon"
+              width="24"
+              height="24"
+            />
+            <span>เพิ่มวาระการประชุม</span>
+          </button>
+        </div>
+      </div>
 
-    <UCDataTable
-      :items="pagedItems"
-      :loading="loading"
-      :pagination="pagination"
-      :skeleton-rows="5"
-      :skeleton-columns="8"
-      :page-sizes="[5, 10, 20, 30]"
-      @page-change="onPageChange"
-      @page-size-change="onPageSizeChange"
-    >
-      <template #header>
-        <tr>
-          <th class="w-16">ลำดับ</th>
-          <th class="w-28">ครั้งที่</th>
-          <th class="is-left">วันที่ประชุม</th>
-          <th class="is-left">คณะ</th>
-          <th class="is-left">สถานที่</th>
-          <th class="w-28">ผู้เข้าร่วม</th>
-          <th class="w-36">สถานะการประชุม</th>
-          <th class="w-20" />
-        </tr>
-      </template>
-
-      <template #body="{ items: rows }">
-        <tr v-for="(item, index) in rows" :key="item.id">
-          <td>{{ pagination.from + index + 1 }}</td>
-          <td>{{ item.meetingNo }}</td>
-          <td class="is-left">{{ item.meetingDateLabel }}</td>
-          <td class="is-left">{{ item.committee }}</td>
-          <td class="is-left">{{ item.location }}</td>
-          <td>{{ item.attendees }} ท่าน</td>
-          <td>
-            <UCStatusBadge status="approved" :label="item.statusLabel" />
-          </td>
-          <td>
-            <UCActionButton action="view" @click="onView(item)" />
-          </td>
-        </tr>
-      </template>
-    </UCDataTable>
-
-    <UCAgendaTree
-      :key="agendaTreeKey"
-      :items="agendaItems"
-      title="ตัวอย่างระเบียบวาระ (ยุบ/ขยายได้)"
-    >
-      <template #actions>
-        <UCButton type="outline" label="ขยายทั้งหมด" @click="expandAllAgenda" />
-      </template>
-    </UCAgendaTree>
+      <MeetingListTable
+        :items="items"
+        :loading="loading"
+        :pagination="pagination"
+        :page-sizes="[5, 10, 20, 30]"
+        @page-change="onPageChange"
+        @page-size-change="onPageSizeChange"
+        @view="onView"
+      />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { AgendaNode } from "#shared/types/agenda";
-import { formatDate } from "~/utils/format/date";
+import { reactive, ref, onMounted } from "vue";
+import type {
+  MeetingListApiRow,
+  MeetingListFilters,
+  MeetingListItem,
+  MeetingListQuery,
+  MeetingStatus,
+} from "#shared/types/meeting";
+import { MEETING_STATUS_LABEL } from "#shared/types/meeting";
+import { usePagination } from "~/composables/usePagination";
+import service from "~/service";
+import addIcon from "~/assets/icon/meeting/add-plus.svg";
 
-type MeetingRow = {
-  id: string;
-  meetingNo: string;
-  meetingDate: string;
-  meetingDateLabel: string;
-  committee: string;
-  location: string;
-  attendees: number;
-  statusLabel: string;
+const MEETING_LIST_MOCK: MeetingListApiRow[] = [
+  {
+    id: "c3d4e5f6-a7b8-4c9d-90e1-f2a3b4c5d6e8",
+    meeting_committee_id: "123e4567-e89b-12d3-a456-426614174000",
+    meeting_set_id: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+    meeting_no: null,
+    start_at: "2025-08-26T13:00:00",
+    end_at: null,
+    location: "ห้องประชุมชั้น 5 อาคารสำนักงาน",
+    status: "draft",
+    status_name: "ฉบับร่าง",
+    member_count: 15,
+    topic_count: 0,
+    approved_topic_count: 0,
+    created_at: "2025-08-10T09:00:00",
+    updated_at: "2025-08-10T09:30:00",
+    meeting_committee: {
+      id: "123e4567-e89b-12d3-a456-426614174000",
+      name: "คณะกรรมการดำเนินการ",
+    },
+    meeting_set: {
+      id: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      set_number: 47,
+      year: "2568",
+    },
+  },
+  {
+    id: "d4e5f6a7-b8c9-4d0e-91f2-a3b4c5d6e7f8",
+    meeting_committee_id: "123e4567-e89b-12d3-a456-426614174000",
+    meeting_set_id: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+    meeting_no: 6,
+    start_at: "2025-07-28T13:00:00",
+    end_at: "2025-07-28T15:40:00",
+    location: "ห้องประชุมชั้น 5",
+    status: "completed",
+    status_name: "เสร็จสิ้น",
+    member_count: 15,
+    topic_count: 15,
+    approved_topic_count: 15,
+    created_at: "2025-07-01T09:00:00",
+    updated_at: "2025-07-28T15:40:00",
+    meeting_committee: {
+      id: "123e4567-e89b-12d3-a456-426614174000",
+      name: "คณะกรรมการดำเนินการ",
+    },
+    meeting_set: {
+      id: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      set_number: 47,
+      year: "2568",
+    },
+  },
+  {
+    id: "e5f6a7b8-c9d0-4e1f-92a3-b4c5d6e7f8a9",
+    meeting_committee_id: "987fcdeb-51a2-43d7-9012-345678901234",
+    meeting_set_id: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+    meeting_no: 5,
+    start_at: "2025-06-25T09:00:00",
+    end_at: "2025-06-25T11:30:00",
+    location: "ห้องประชุมชั้น 5",
+    status: "completed",
+    status_name: "เสร็จสิ้น",
+    member_count: 15,
+    topic_count: 8,
+    approved_topic_count: 8,
+    created_at: "2025-06-01T09:00:00",
+    updated_at: "2025-06-25T11:30:00",
+    meeting_committee: {
+      id: "987fcdeb-51a2-43d7-9012-345678901234",
+      name: "คณะกรรมการเงินกู้",
+    },
+    meeting_set: {
+      id: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      set_number: 47,
+      year: "2568",
+    },
+  },
+  {
+    id: "f6a7b8c9-d0e1-4f2a-93b4-c5d6e7f8a9b0",
+    meeting_committee_id: "123e4567-e89b-12d3-a456-426614174000",
+    meeting_set_id: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+    meeting_no: 4,
+    start_at: "2025-05-24T13:00:00",
+    end_at: "2025-05-24T16:00:00",
+    location: "ห้องประชุมชั้น 5",
+    status: "completed",
+    status_name: "เสร็จสิ้น",
+    member_count: 18,
+    topic_count: 10,
+    approved_topic_count: 10,
+    created_at: "2025-05-01T09:00:00",
+    updated_at: "2025-05-24T16:00:00",
+    meeting_committee: {
+      id: "123e4567-e89b-12d3-a456-426614174000",
+      name: "คณะกรรมการดำเนินการ",
+    },
+    meeting_set: {
+      id: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      set_number: 47,
+      year: "2568",
+    },
+  },
+];
+
+const STATUSES = new Set<MeetingStatus>([
+  "draft",
+  "waiting",
+  "meeting",
+  "ended",
+  "completed",
+]);
+
+const mapRow = (e: any): MeetingListItem => {
+  const statusRaw = e?.status ?? "waiting";
+  const status: MeetingStatus = STATUSES.has(statusRaw) ? statusRaw : "waiting";
+  const year = e?.meeting_set?.year?.trim?.() ?? "";
+  const meetingNo =
+    e?.meeting_no == null
+      ? "-"
+      : year
+        ? `${e.meeting_no}/${year}`
+        : String(e.meeting_no ?? "");
+
+  return {
+    id: e?.id ?? "",
+    meetingNo,
+    meetingDate: e?.start_at ?? "",
+    committee: e?.meeting_committee?.name?.trim?.() || "-",
+    location: e?.location?.trim?.() || "-",
+    attendees: e?.member_count ?? 0,
+    status,
+    statusName: e?.status_name?.trim?.() || MEETING_STATUS_LABEL[status],
+  };
 };
 
-const { pagination, setPagination } = usePagination(5);
+const parseMeetingNo = (raw: string): number | undefined => {
+  const head = raw.trim().split("/")[0]?.trim() ?? "";
+  if (!head) return undefined;
+  const n = Number(head);
+  return Number.isInteger(n) && n >= 1 ? n : undefined;
+};
 
-const loading = ref(false);
-const filters = reactive({
+const query = reactive<MeetingListQuery>({
+  from: 0,
+  size: 5,
+  sort_by: "start_at",
+  order_by: "desc",
+  meeting_no: undefined,
+  meeting_date: undefined,
+  location: undefined,
+});
+
+const { pagination, setPagination, applyPage, applyPageSize } = usePagination(
+  query.size,
+);
+
+const loading = ref(true);
+const filters = ref<MeetingListFilters>({
   meetingNo: "",
-  meetingDate: "",
+  meetingDate: undefined,
   location: "",
 });
+const items = ref<MeetingListItem[]>([]);
+const usingMock = ref(false);
 
-const allItems = ref<MeetingRow[]>([
-  {
-    id: "1",
-    meetingNo: "6/2568",
-    meetingDate: "2025-07-28T13:00:00+07:00",
-    meetingDateLabel: "",
-    committee: "คณะกรรมการดำเนินการ",
-    location: "ห้องประชุมชั้น 5 อาคารหลัก",
-    attendees: 15,
-    statusLabel: "เสร็จสิ้น",
-  },
-  {
-    id: "2",
-    meetingNo: "5/2568",
-    meetingDate: "2025-06-25T09:00:00+07:00",
-    meetingDateLabel: "",
-    committee: "คณะกรรมการเงินกู้",
-    location: "ห้องประชุมชั้น 5",
-    attendees: 15,
-    statusLabel: "เสร็จสิ้น",
-  },
-  {
-    id: "3",
-    meetingNo: "4/2568",
-    meetingDate: "2025-05-24T13:00:00+07:00",
-    meetingDateLabel: "",
-    committee: "คณะกรรมการดำเนินการ",
-    location: "ห้องประชุมชั้น 5",
-    attendees: 18,
-    statusLabel: "เสร็จสิ้น",
-  },
-  {
-    id: "4",
-    meetingNo: "3/2568",
-    meetingDate: "2025-04-22T13:00:00+07:00",
-    meetingDateLabel: "",
-    committee: "คณะกรรมการดำเนินการ",
-    location: "ห้องประชุมชั้น 5",
-    attendees: 16,
-    statusLabel: "เสร็จสิ้น",
-  },
-  {
-    id: "5",
-    meetingNo: "2/2568",
-    meetingDate: "2025-03-18T09:00:00+07:00",
-    meetingDateLabel: "",
-    committee: "คณะกรรมการเงินกู้",
-    location: "ห้องประชุมชั้น 3",
-    attendees: 12,
-    statusLabel: "เสร็จสิ้น",
-  },
-  {
-    id: "6",
-    meetingNo: "1/2568",
-    meetingDate: "2025-02-14T13:00:00+07:00",
-    meetingDateLabel: "",
-    committee: "คณะกรรมการดำเนินการ",
-    location: "ห้องประชุมชั้น 5 อาคารหลัก",
-    attendees: 20,
-    statusLabel: "เสร็จสิ้น",
-  },
-]);
-
-allItems.value = allItems.value.map((item) => ({
-  ...item,
-  meetingDateLabel: `${formatDate(item.meetingDate)} ${new Date(item.meetingDate).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit", hour12: false })}`,
-}));
-
-const applied = ref({ ...filters });
-
-const filteredItems = computed(() => {
-  const no = applied.value.meetingNo.trim().toLowerCase();
-  const date = applied.value.meetingDate.trim().toLowerCase();
-  const location = applied.value.location.trim().toLowerCase();
-
-  return allItems.value.filter((item) => {
-    if (no && !item.meetingNo.toLowerCase().includes(no)) return false;
-    if (date && !item.meetingDateLabel.toLowerCase().includes(date)) return false;
-    if (location && !item.location.toLowerCase().includes(location)) return false;
-    return true;
-  });
-});
-
-const pagedItems = computed(() => {
-  const start = pagination.value.from;
-  const end = start + pagination.value.per_page;
-  return filteredItems.value.slice(start, end);
-});
-
-const syncPagination = () => {
-  const total = filteredItems.value.length;
-  const size = pagination.value.per_page || 5;
-  const from = Math.min(pagination.value.from, Math.max(0, total - 1));
-  const alignedFrom = Math.floor(from / size) * size;
-  setPagination({
-    from: alignedFrom,
-    size,
-    total,
-  });
+const syncFiltersToQuery = () => {
+  query.meeting_no = parseMeetingNo(filters.value.meetingNo);
+  const meetingDate = filters.value.meetingDate?.trim();
+  query.meeting_date = meetingDate ? meetingDate.slice(0, 10) : undefined;
+  const location = filters.value.location.trim();
+  query.location = location || undefined;
 };
 
-const agendaItems = ref<AgendaNode[]>([
-  {
-    id: "a1",
-    code: "1.",
-    label: "เรื่องที่ประธานแจ้งให้ที่ประชุมทราบ",
-    defaultOpen: true,
-    children: [
-      { id: "a1-1", code: "1.1", label: "ผลการดำเนินงานไตรมาสที่ 2" },
-      { id: "a1-2", code: "1.2", label: "กำหนดการกิจกรรมประจำเดือน" },
-    ],
-  },
-  {
-    id: "a2",
-    code: "2.",
-    label: "รับรองรายงานการประชุมครั้งที่แล้ว",
-    children: [
-      { id: "a2-1", code: "2.1", label: "รายงานการประชุมครั้งที่ 5/2568" },
-    ],
-  },
-  {
-    id: "a3",
-    code: "3.",
-    label: "เรื่องเสนอเพื่อพิจารณา",
-    defaultOpen: true,
-    children: [
-      {
-        id: "a3-1",
-        code: "3.1",
-        label: "พิจารณาคำขอกู้เงิน",
-        children: [
-          { id: "a3-1-1", code: "3.1.1", label: "สมาชิก A" },
-          { id: "a3-1-2", code: "3.1.2", label: "สมาชิก B" },
-        ],
-      },
-      { id: "a3-2", code: "3.2", label: "พิจารณางบประมาณโครงการ" },
-    ],
-  },
-  {
-    id: "a4",
-    code: "4.",
-    label: "เรื่องอื่นๆ",
-  },
-]);
-
-const onSearch = async () => {
+const fetchList = async () => {
   loading.value = true;
-  applied.value = { ...filters };
-  pagination.value.from = 0;
-  await new Promise((r) => setTimeout(r, 350));
-  syncPagination();
-  loading.value = false;
+  usingMock.value = false;
+  syncFiltersToQuery();
+
+  try {
+    const resp = await service.meeting.getMeetings({ ...query });
+    const { data, code, paginate } = resp as any;
+    if (code == "200") {
+      const rows = Array.isArray(data) ? data : [];
+      items.value = rows.map((e: any) => mapRow(e));
+    } else {
+      items.value = [];
+    }
+    setPagination(paginate ?? { from: 0, size: query.size, total: 0 });
+  } catch (err: any) {
+    items.value = [];
+    setPagination({ from: 0, size: query.size, total: 0 });
+    showAlert({
+      type: "warning",
+      title: (err && "ดึงข้อมูลไม่สำเร็จ") || "",
+      text: err?.message || "",
+      isToast: true,
+    });
+  } finally {
+    loading.value = false;
+  }
+};
+
+const applyMockPage = () => {
+  let rows = [...MEETING_LIST_MOCK];
+
+  const meetingNo = parseMeetingNo(filters.value.meetingNo);
+  if (meetingNo != null) {
+    rows = rows.filter((r) => r.meeting_no === meetingNo);
+  }
+
+  const meetingDate = filters.value.meetingDate?.trim()?.slice(0, 10);
+  if (meetingDate) {
+    rows = rows.filter((r) => r.start_at.startsWith(meetingDate));
+  }
+
+  const location = filters.value.location.trim().toLowerCase();
+  if (location) {
+    rows = rows.filter((r) => r.location.toLowerCase().includes(location));
+  }
+
+  const total = rows.length;
+  const size = query.size;
+  const from = Math.min(query.from, Math.max(0, total - (total ? 1 : 0)));
+  const aligned = Math.floor(from / size) * size;
+  query.from = total === 0 ? 0 : aligned;
+
+  items.value = rows.slice(query.from, query.from + size).map(mapRow);
+  setPagination({ from: query.from, size, total });
+};
+
+const onSearch = () => {
+  query.from = 0;
+  fetchList();
 };
 
 const onPageChange = (from: number) => {
-  pagination.value.from = from;
-  syncPagination();
+  applyPage(query, from);
+  if (usingMock.value) {
+    applyMockPage();
+    return;
+  }
+  fetchList();
 };
 
 const onPageSizeChange = (size: number) => {
-  pagination.value.per_page = size;
-  pagination.value.from = 0;
-  syncPagination();
+  applyPageSize(query, size);
+  if (usingMock.value) {
+    applyMockPage();
+    return;
+  }
+  fetchList();
 };
 
-const onAddMeeting = async () => {
-  const ok = await confirmAction();
-  if (!ok) return;
-  await showSaveSuccess();
+const onAddMeeting = () => {
+  navigateTo("/meetings/new");
 };
 
-const onDemoSuccess = async () => {
-  await showSaveSuccess("ระบบบันทึกรายการเรียบร้อยแล้ว");
-};
-
-const onView = async (item: MeetingRow) => {
-  await showAlertConfirm({
-    type: "warning",
-    title: "เปิดรายละเอียด",
-    text: `ต้องการเปิดการประชุมครั้งที่ ${item.meetingNo} หรือไม่`,
-  });
-};
-
-const agendaTreeKey = ref(0);
-
-const expandAllAgenda = () => {
-  const markOpen = (nodes: AgendaNode[]): AgendaNode[] =>
-    nodes.map((node) => ({
-      ...node,
-      defaultOpen: true,
-      children: node.children ? markOpen(node.children) : undefined,
-    }));
-  agendaItems.value = markOpen(agendaItems.value);
-  agendaTreeKey.value += 1;
+const onView = (item: MeetingListItem) => {
+  navigateTo(`/meetings/${item.id}`);
 };
 
 onMounted(() => {
-  syncPagination();
+  fetchList();
 });
 </script>

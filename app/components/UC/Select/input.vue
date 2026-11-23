@@ -41,7 +41,7 @@
       @update:open="onOpenChange"
     >
       <template #item-label="{ item }">
-        <div class="flex min-w-0 items-center gap-2">
+        <div class="flex min-w-0 items-center gap-2 text-inherit">
           <span
             v-if="item.tag"
             class="inline-flex h-6 shrink-0 items-center rounded px-2 text-xs font-semibold text-white"
@@ -49,7 +49,7 @@
           >
             {{ item.tag }}
           </span>
-          <span class="truncate">{{ item.label }}</span>
+          <span class="truncate text-inherit">{{ item.label }}</span>
         </div>
       </template>
 
@@ -79,13 +79,9 @@
 
 <script setup lang="ts">
 import { appInputUi } from "~/utils/ui/input";
+import type { UCSelectItem } from "#shared/types/select";
 
-export type UCSelectItem = {
-  label: string;
-  value: string;
-  tag?: string;
-  tagClass?: string;
-};
+export type { UCSelectItem };
 
 interface InputMeta {
   // เปิดโหลดรายการเพิ่มเมื่อเลื่อนถึงท้าย (ไม่ส่ง = ปิด ทำงานแบบเดิม)
@@ -143,6 +139,16 @@ const LOAD_MORE_THRESHOLD = 48; // px จากท้ายรายการ
 const menuRef = ref<{ viewportRef?: HTMLElement | null } | null>(null);
 let boundViewport: HTMLElement | null = null;
 
+type LockedOverflow = { el: HTMLElement; overflow: string };
+const lockedElements: LockedOverflow[] = [];
+let lockedBody: {
+  scrollY: number;
+  paddingRight: string;
+  position: string;
+  top: string;
+  width: string;
+} | null = null;
+
 const canLoadMore = () =>
   !!props.meta?.isInfiniteScroll &&
   props.hasMore &&
@@ -167,22 +173,114 @@ const unbindViewport = () => {
   boundViewport = null;
 };
 
-// viewport อยู่ใน portal จะมีก็ต่อเมื่อเปิดอยู่ → ผูก scroll ตอนเปิด ถอดตอนปิด
-const bindViewport = async () => {
-  if (!props.meta?.isInfiniteScroll || !isOpen.value) return;
-  await nextTick();
-  const el = menuRef.value?.viewportRef ?? null;
-  if (!el || el === boundViewport) return;
-  unbindViewport();
-  el.addEventListener("scroll", onScrollOptions, { passive: true });
-  boundViewport = el;
+const isScrollable = (el: HTMLElement) => {
+  const style = window.getComputedStyle(el);
+  const canScroll =
+    style.overflowY === "auto" ||
+    style.overflowY === "scroll" ||
+    style.overflowX === "auto" ||
+    style.overflowX === "scroll";
+  return (
+    canScroll &&
+    (el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth)
+  );
 };
 
-// รายการยังสั้นจนไม่มี scrollbar → โหลดต่อเองจนเลื่อนได้หรือหมด
+const getDropdownViewport = () => menuRef.value?.viewportRef ?? null;
+
+const onLockScroll = () => {
+  const viewport = getDropdownViewport();
+  document.querySelectorAll<HTMLElement>("*").forEach((el) => {
+    if (!isScrollable(el)) return;
+    if (viewport && (el === viewport || el.contains(viewport))) return;
+    lockedElements.push({ el, overflow: el.style.overflow });
+    el.style.overflow = "hidden";
+  });
+
+  const scrollY = window.scrollY;
+  const scrollbarWidth =
+    window.innerWidth - document.documentElement.clientWidth;
+  lockedBody = {
+    scrollY,
+    paddingRight: document.body.style.paddingRight,
+    position: document.body.style.position,
+    top: document.body.style.top,
+    width: document.body.style.width,
+  };
+  if (scrollbarWidth > 0) {
+    const currentPaddingRight = parseFloat(
+      window.getComputedStyle(document.body).paddingRight || "0",
+    );
+    document.body.style.paddingRight = `${currentPaddingRight + scrollbarWidth}px`;
+  }
+  document.body.style.position = "fixed";
+  document.body.style.top = `-${scrollY}px`;
+  document.body.style.width = "100%";
+};
+
+const onUnlockScroll = () => {
+  lockedElements.forEach(({ el, overflow }) => {
+    el.style.overflow = overflow;
+  });
+  lockedElements.length = 0;
+
+  if (!lockedBody) return;
+  document.body.style.position = lockedBody.position;
+  document.body.style.top = lockedBody.top;
+  document.body.style.width = lockedBody.width;
+  document.body.style.paddingRight = lockedBody.paddingRight;
+  window.scrollTo(0, lockedBody.scrollY);
+  lockedBody = null;
+};
+
+const onWheelOutside = (e: WheelEvent) => {
+  const viewport = getDropdownViewport();
+  const target = e.target as Node | null;
+  if (viewport && target && viewport.contains(target)) {
+    const atTop = viewport.scrollTop <= 0 && e.deltaY < 0;
+    const atBottom =
+      viewport.scrollTop + viewport.clientHeight >= viewport.scrollHeight - 1 &&
+      e.deltaY > 0;
+    if (atTop || atBottom) e.preventDefault();
+    return;
+  }
+  e.preventDefault();
+};
+
+const onTouchMoveOutside = (e: TouchEvent) => {
+  const viewport = getDropdownViewport();
+  const target = e.target as Node | null;
+  if (viewport && target && viewport.contains(target)) return;
+  e.preventDefault();
+};
+
+const bindOutsideScrollBlock = () => {
+  document.addEventListener("wheel", onWheelOutside, { passive: false });
+  document.addEventListener("touchmove", onTouchMoveOutside, {
+    passive: false,
+  });
+};
+
+const unbindOutsideScrollBlock = () => {
+  document.removeEventListener("wheel", onWheelOutside);
+  document.removeEventListener("touchmove", onTouchMoveOutside);
+};
+
+const bindViewport = async () => {
+  await nextTick();
+  const el = getDropdownViewport();
+  if (!el) return;
+  if (props.meta?.isInfiniteScroll && el !== boundViewport) {
+    unbindViewport();
+    el.addEventListener("scroll", onScrollOptions, { passive: true });
+    boundViewport = el;
+  }
+};
+
 const fillIfNotScrollable = async () => {
   if (!canLoadMore()) return;
   await nextTick();
-  const el = boundViewport;
+  const el = boundViewport ?? getDropdownViewport();
   if (el && el.scrollHeight <= el.clientHeight) {
     requestLoadMore();
   }
@@ -192,9 +290,14 @@ watch(
   isOpen,
   async (open) => {
     if (open) {
+      await nextTick();
       await bindViewport();
+      onLockScroll();
+      bindOutsideScrollBlock();
       fillIfNotScrollable();
     } else {
+      unbindOutsideScrollBlock();
+      onUnlockScroll();
       unbindViewport();
     }
   },
@@ -210,13 +313,18 @@ watch(
     searchTerm.value,
   ],
   async () => {
+    if (!isOpen.value) return;
     await bindViewport();
     fillIfNotScrollable();
   },
   { flush: "post" },
 );
 
-onBeforeUnmount(unbindViewport);
+onBeforeUnmount(() => {
+  unbindOutsideScrollBlock();
+  onUnlockScroll();
+  unbindViewport();
+});
 
 const mergedUi = computed(() => ({
   ...props.ui,
@@ -230,20 +338,25 @@ const mergedUi = computed(() => ({
     .filter(Boolean)
     .join(" "),
   group: ["p-0", props.ui?.group].filter(Boolean).join(" "),
-  viewport: ["max-h-60 overflow-y-auto p-0", props.ui?.viewport]
+  viewport: [
+    "max-h-60 overflow-y-auto overscroll-contain p-0",
+    props.ui?.viewport,
+  ]
     .filter(Boolean)
     .join(" "),
   item: [
-    "w-full rounded-none px-3 py-2.5 text-sm text-[#222] outline-none select-none",
+    "w-full rounded-none px-3 py-2.5 text-sm !text-[#222] outline-none select-none",
     "before:hidden",
-    "data-[highlighted]:bg-neutral-200 data-[highlighted]:text-[#222]",
-    "data-[state=checked]:bg-neutral-500 data-[state=checked]:text-white",
-    "data-[state=checked][data-highlighted]:bg-neutral-500 data-[state=checked][data-highlighted]:text-white",
+    "data-[highlighted]:!bg-[#F9F9F9] data-[highlighted]:!text-[#222]",
+    "data-[state=checked]:!bg-[#edecec] data-[state=checked]:!text-[#222]",
+    "data-[state=checked][data-highlighted]:!bg-[#E8E8E8] data-[state=checked][data-highlighted]:!text-[#222]",
     props.ui?.item,
   ]
     .filter(Boolean)
     .join(" "),
-  itemLabel: ["truncate", props.ui?.itemLabel].filter(Boolean).join(" "),
+  itemLabel: ["truncate !text-inherit", props.ui?.itemLabel]
+    .filter(Boolean)
+    .join(" "),
   itemTrailing: ["hidden", props.ui?.itemTrailing].filter(Boolean).join(" "),
 }));
 </script>

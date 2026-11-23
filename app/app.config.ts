@@ -14,17 +14,32 @@ export default defineAppConfig({
     inputNumber: { slots: { base: APP_INPUT_BASE_CLASSES } },
     inputDate: { slots: { base: APP_INPUT_BASE_CLASSES } },
     formField: { slots: { error: "text-form-error text-error" } },
+    // Checkbox ตาม Figma blue_900 (#0066DA) — ไม่ใช้ amber ของ primary ทั่วไป
     // ตอน disabled ไม่จาง (opacity-75 ของ Nuxt UI) แต่ใช้สีเทาเดียวกับ input (#6B7280 / #F5F5F5 / #AFAFAF)
     checkbox: {
       variants: {
+        color: {
+          primary: {
+            indicator: "bg-[#0066DA]",
+          },
+        },
         disabled: {
           true: {
             root: "opacity-100",
-            base: "cursor-not-allowed border-[#AFAFAF] bg-[#F5F5F5] data-[state=checked]:bg-[#F5F5F5] data-[state=checked]:text-[#6B7280]",
+            base: "cursor-not-allowed ring-[#AFAFAF] bg-[#F5F5F5]",
+            indicator: "bg-[#F5F5F5] text-[#6B7280]",
             label: "cursor-not-allowed text-[#6B7280]",
           },
         },
       },
+      compoundVariants: [
+        {
+          color: "primary",
+          class: {
+            base: "focus-visible:ring-[#0066DA]",
+          },
+        },
+      ],
     },
     switch: {
       variants: {
