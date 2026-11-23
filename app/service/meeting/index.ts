@@ -23,3 +23,24 @@ export const getMeetings = (params?: Record<string, unknown>) => {
     params,
   });
 };
+
+export const getInfo = (id: string) => {
+  return client({
+    url: `/meeting/meetings/${id}`,
+    method: "GET",
+  });
+};
+
+export const getMembers = (id: string) => {
+  return client({
+    url: `/meeting/meetings/${id}/members`,
+    method: "GET",
+  });
+};
+
+export const getGuests = (id: string) => {
+  return client({
+    url: `/meeting/meetings/${id}/guests`,
+    method: "GET",
+  });
+};
