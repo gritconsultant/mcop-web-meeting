@@ -69,6 +69,7 @@
                 v-if="isEditing"
                 label="สาระสำคัญ / รายละเอียด"
                 name="topic_detail"
+                required
               >
                 <UCEditor v-model="detail" placeholder="กรอกรายละเอียดเรื่อง" />
               </UCFormField>
