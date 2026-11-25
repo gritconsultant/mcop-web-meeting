@@ -596,21 +596,21 @@ button:not(:disabled),
   height: 36px;
   padding: 0 14px;
   color: #fff;
-  background-color: #f59e0b;
-  border: 1px solid #f59e0b;
+  background-color: #ff6e00;
+  border: 1px solid #ff6e00;
 }
 
 .hrm-btn--edit-warning:hover:not(:disabled) {
-  background-color: #d97706;
-  border-color: #d97706;
+  background-color: #e55f00;
+  border-color: #e55f00;
 }
 
 .hrm-btn--edit-warning-active {
   height: 36px;
   padding: 0 14px;
-  color: #f59e0b;
+  color: #ff6e00;
   background-color: #fff;
-  border: 1px solid #f59e0b;
+  border: 1px solid #ff6e00;
   cursor: default;
 }
 
