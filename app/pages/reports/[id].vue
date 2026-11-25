@@ -88,16 +88,19 @@
             />
 
             <div class="space-y-2">
-              <p class="text-sm">
-                บันทึกมติที่ประชุม ของ{{ activeTopic?.title }}
-              </p>
-              <UCInput
-                v-model="resolution"
-                multiline
-                :rows="3"
-                :disabled="!isEditing"
-                placeholder="ที่ประชุมรับทราบ"
-              />
+              <UCFormField
+                :label="`บันทึกมติที่ประชุม ของ${activeTopic?.title ?? ''}`"
+                name="resolution_note"
+                :required="isEditing"
+              >
+                <UCInput
+                  v-model="resolution"
+                  multiline
+                  :rows="3"
+                  :disabled="!isEditing"
+                  placeholder="กรอกบันทึกมติที่ประชุม"
+                />
+              </UCFormField>
               <div class="flex justify-end gap-2">
                 <template v-if="isEditing">
                   <UCButton label="ยกเลิก" @click="onToggleEdit" />
