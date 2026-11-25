@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-4">
+  <div class="space-y-4 bg-white p-5">
     <template v-if="isTab">
       <UCPageHeader title="รายงานการประชุม" />
       <NavigationNavbarLayout :menus="menus" type="page" />

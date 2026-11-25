@@ -17,7 +17,11 @@
 
       <div class="flex flex-wrap items-center justify-between gap-3 text-sm">
         <UCDescriptionList :items="metaItems" />
-        <UCButton label="รายชื่อผู้เข้าประชุม" @click="attendeeOpen = true" />
+        <UCButton
+          label="รายชื่อผู้เข้าประชุม"
+          type="add"
+          @click="attendeeOpen = true"
+        />
       </div>
     </UCPageHeader>
 
@@ -61,37 +65,48 @@
             </div>
 
             <UCCard title="สาระสำคัญ / รายละเอียด" accordion>
+              <UCFormField
+                v-if="isEditing"
+                label="สาระสำคัญ / รายละเอียด"
+                name="topic_detail"
+                required
+              >
+                <UCEditor v-model="detail" placeholder="กรอกรายละเอียดเรื่อง" />
+              </UCFormField>
               <div
+                v-else
                 class="space-y-4 text-sm leading-6"
                 v-html="topicDetailHtml"
               />
             </UCCard>
 
-            <h3 class="text-lg font-bold">ไฟล์ที่เกี่ยวข้อง</h3>
-            <div class="flex flex-wrap gap-3">
-              <UCUploadFileCard
-                v-for="f in activeTopic?.files"
-                :key="f.id"
-                :href="f.url"
-                :name="f.file_names"
-                :size-label="`${f.convert_size} - ${formatDate(f.created_at, 'th_dmy_time')}`"
-              />
-            </div>
+            <UCUpload
+              title="ไฟล์ที่เกี่ยวข้อง"
+              :currently-files="topicFiles"
+              disabled
+              multiple
+            />
 
             <div class="space-y-2">
-              <p class="text-sm">
-                บันทึกมติที่ประชุม ของ{{ activeTopic?.title }}
-              </p>
-              <UCInput
-                v-model="resolution"
-                multiline
-                :rows="3"
-                :disabled="!isEditing"
-                placeholder="ที่ประชุมรับทราบ"
-              />
-              <div v-if="isEditing" class="flex justify-end gap-2">
-                <UCButton label="ยกเลิก" @click="onToggleEdit" />
-                <UCButton type="primary" label="บันทึก" disabled />
+              <UCFormField
+                :label="`บันทึกมติที่ประชุม ของ${activeTopic?.title ?? ''}`"
+                name="resolution_note"
+                :required="isEditing"
+              >
+                <UCInput
+                  v-model="resolution"
+                  multiline
+                  :rows="3"
+                  :disabled="!isEditing"
+                  placeholder="กรอกบันทึกมติที่ประชุม"
+                />
+              </UCFormField>
+              <div class="flex justify-end gap-2">
+                <template v-if="isEditing">
+                  <UCButton label="ยกเลิก" @click="onToggleEdit" />
+                  <UCButton type="primary" label="บันทึก" disabled />
+                </template>
+                <UCButton v-else type="primary" label="ส่งมติ" />
               </div>
             </div>
           </div>
@@ -149,13 +164,14 @@ const metaItems = computed(() => {
 
 const downloadItems = [
   { id: "pdf", name: "ดาวน์โหลดไฟล์ PDF" },
-  { id: "excel", name: "ดาวน์โหลดไฟล์ Excel" },
+  { id: "word", name: "ดาวน์โหลดไฟล์ Word" },
 ];
 
 const attendeeOpen = ref(false);
 const agendaOpen = ref(true);
 const activeTopicId = ref("");
 const resolution = ref("");
+const detail = ref("");
 const isEditing = ref(false);
 
 const activeAgenda = computed(() =>
@@ -164,6 +180,12 @@ const activeAgenda = computed(() =>
 const activeTopic = computed(() =>
   activeAgenda.value?.topics.find((t) => t.id === activeTopicId.value),
 );
+const topicFiles = computed(() =>
+  (activeTopic.value?.files ?? []).map((f) => ({
+    ...toCurrentlyFile(f),
+    convert_size: `${f.convert_size} - ${formatDate(f.created_at, "th_dmy_time")}`,
+  })),
+);
 const topicDetailHtml = computed(() =>
   DOMPurify.sanitize(activeTopic.value?.detail ?? ""),
 );
@@ -171,10 +193,12 @@ const topicDetailHtml = computed(() =>
 const onToggleEdit = () => {
   isEditing.value = !isEditing.value;
   resolution.value = activeTopic.value?.resolution_note ?? "";
+  detail.value = activeTopic.value?.detail ?? "";
 };
 
 watch(activeTopic, (t) => {
   resolution.value = t?.resolution_note ?? "";
+  detail.value = t?.detail ?? "";
   isEditing.value = false;
 });
 
