@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-4">
+  <div class="flex flex-col gap-5">
     <UCCard title="ค้นหา" accordion>
       <UCForm
         :state="form"
@@ -27,7 +27,7 @@
         </UCFormField>
         <UCButton type="search" label="ค้นหา" button-type="submit" />
         <UCButton
-          class="ml-auto"
+          class="ml-auto rounded-full! border-[#66A9FF]! bg-[#EAF4FF]! text-[#0066DA]! text-xs! font-bold! hover:bg-[#DDEEFF]!"
           icon="i-lucide-download"
           trailing-icon
           label="ดาวน์โหลดไฟล์รายงาน"
