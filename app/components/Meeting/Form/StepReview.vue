@@ -72,7 +72,7 @@
         >
           <div class="flex w-full items-center gap-3">
             <h3
-              class="m-0 min-w-0 flex-1 text-xl font-bold leading-tight text-[#222]"
+              class="m-0 min-w-0 flex-1 text-xl font-bold leading-tight text-[#1A1E24]"
             >
               ระเบียบวาระ
             </h3>
@@ -105,7 +105,7 @@
                 class="flex h-10 w-full items-center rounded px-3 py-2 text-left text-sm font-bold"
                 :class="
                   agenda.key === selectedAgendaKey
-                    ? 'bg-[#edecec] text-[#222]'
+                    ? 'bg-[#edecec] text-[#1A1E24]'
                     : 'bg-transparent text-[#7c7c7c] hover:bg-[#fafafa]'
                 "
                 @click="selectAgenda(agenda.key)"
@@ -121,7 +121,7 @@
                   class="ml-3 flex h-10 w-[256px] max-w-[256px] items-center pl-3 text-left text-sm"
                   :class="
                     topic.key === selectedTopicKey
-                      ? 'bg-[#f6f6f6] text-[#222]'
+                      ? 'bg-[#f6f6f6] text-[#1A1E24]'
                       : 'rounded bg-white text-[#7c7c7c] hover:bg-[#fafafa]'
                   "
                   @click="selectTopic(agenda.key, topic.key)"
@@ -130,7 +130,7 @@
                     class="flex h-full min-w-0 flex-1 items-center border-l-2 py-1 pl-2.5 pr-1"
                     :class="
                       topic.key === selectedTopicKey
-                        ? 'border-[#222]'
+                        ? 'border-[#1A1E24]'
                         : 'border-[#afafaf]'
                     "
                   >
@@ -147,7 +147,7 @@
         <div class="meeting-form-agenda__detail min-w-0 flex-1">
           <div
             v-if="!selectedTopic"
-            class="flex min-h-[360px] items-center justify-center text-sm text-[#222]"
+            class="flex min-h-[360px] items-center justify-center text-sm text-[#1A1E24]"
           >
             กรุณาเลือกระเบียบวาระ
           </div>
@@ -155,7 +155,7 @@
           <template v-else>
             <div class="mb-2.5 flex h-10 items-center py-1">
               <h3
-                class="m-0 min-w-0 flex-1 text-xl font-bold leading-tight text-[#222]"
+                class="m-0 min-w-0 flex-1 text-xl font-bold leading-tight text-[#1A1E24]"
               >
                 {{ selectedAgenda?.label || "ระเบียบวาระ" }}
               </h3>
@@ -166,7 +166,7 @@
                 class="flex h-[45px] items-center rounded-t-xl border-b border-[#afafaf] bg-[#f9f9f9] px-4"
               >
                 <span
-                  class="min-w-0 flex-1 truncate text-base font-bold text-[#222]"
+                  class="min-w-0 flex-1 truncate text-base font-bold text-[#1A1E24]"
                 >
                   เรื่องที่ {{ selectedTopicIndex + 1 }}
                   {{ selectedTopic.title ? ` ${selectedTopic.title}` : "" }}
@@ -175,7 +175,7 @@
 
               <div class="flex flex-col gap-5 p-5">
                 <h4
-                  class="m-0 text-xl font-bold leading-tight text-[#222]"
+                  class="m-0 text-xl font-bold leading-tight text-[#1A1E24]"
                 >
                   {{ selectedTopic.title || "-" }}
                 </h4>
@@ -186,7 +186,7 @@
                     class="flex h-[45px] w-full items-center justify-between gap-3 bg-[#f9f9f9] px-4 text-left"
                     @click="detailOpen = !detailOpen"
                   >
-                    <span class="text-base font-bold text-[#222]">
+                    <span class="text-base font-bold text-[#1A1E24]">
                       สาระสำคัญ / รายละเอียด
                     </span>
                     <UIcon
@@ -195,7 +195,7 @@
                           ? 'i-lucide-chevron-up'
                           : 'i-lucide-chevron-down'
                       "
-                      class="size-6 shrink-0 text-[#222]"
+                      class="size-6 shrink-0 text-[#1A1E24]"
                     />
                   </button>
                   <div
@@ -204,7 +204,7 @@
                   >
                     <div
                       v-if="selectedTopic.detail"
-                      class="meeting-form-review__detail prose max-w-none text-base leading-normal text-[#222]"
+                      class="meeting-form-review__detail prose max-w-none text-base leading-normal text-[#1A1E24]"
                       v-html="selectedTopic.detail"
                     />
                     <p v-else class="m-0 text-sm text-[#7c7c7c]">ไม่มีรายละเอียด</p>

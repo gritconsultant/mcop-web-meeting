@@ -14,7 +14,7 @@
       <EditorContent
         v-if="editor"
         :editor="editor"
-        class="uc-editor__body min-h-[280px] w-full text-sm leading-normal text-[#222]"
+        class="uc-editor__body min-h-[280px] w-full text-sm leading-normal text-[#1A1E24]"
       />
     </ClientOnly>
   </div>
@@ -71,7 +71,7 @@ const editor = useEditor({
   editorProps: {
     attributes: {
       class:
-        "uc-editor__prose min-h-[280px] w-full outline-none text-sm leading-normal text-[#222]",
+        "uc-editor__prose min-h-[280px] w-full outline-none text-sm leading-normal text-[#1A1E24]",
     },
   },
   onUpdate: ({ editor: ed }) => {

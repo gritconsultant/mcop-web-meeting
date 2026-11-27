@@ -47,7 +47,7 @@
               meta?.readOnly ? 'opacity-50' : '',
               localSelect.customClassTagName
                 ? localSelect.customClassTagName
-                : 'bg-[#EDECEC] text-[#222222] group-hover:text-[#222222] min-w-24 rounded-[4px] text-xs text-center py-1',
+                : 'bg-[#EDECEC] text-[#1A1E24] group-hover:text-[#1A1E24] min-w-24 rounded-[4px] text-xs text-center py-1',
               'min-w-0',
             ]"
           >
@@ -75,8 +75,8 @@
             checkOption(item) && !checkIsDisabled(item)
               ? 'bg-[#767676] text-white cursor-default'
               : checkIsDisabled(item)
-                ? 'text-[#222222] font-normal opacity-50'
-                : 'hover:bg-[#b5b5b5] hover:text-[#222222] cursor-pointer',
+                ? 'text-[#1A1E24] font-normal opacity-50'
+                : 'hover:bg-[#b5b5b5] hover:text-[#1A1E24] cursor-pointer',
           ]"
         >
           <div

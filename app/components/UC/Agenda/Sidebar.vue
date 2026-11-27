@@ -26,7 +26,7 @@
               class="-ml-0.5 block w-full truncate border-l-4 px-3 py-2 text-left"
               :class="
                 t.id === active
-                  ? 'border-[#222] bg-[#f3f3f3] font-medium'
+                  ? 'border-[#1A1E24] bg-[#f3f3f3] font-medium'
                   : 'border-transparent text-[#7C7C7C] hover:bg-black/5'
               "
               @click="active = t.id"

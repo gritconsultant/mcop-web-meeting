@@ -7,7 +7,7 @@
       class="meeting-form-agenda__nav flex w-[340px] max-w-[340px] shrink-0 flex-col gap-3 self-stretch border-r-[0.7px] border-[#afafaf] bg-white px-3 pb-5"
     >
       <div class="flex w-full items-center gap-3">
-        <h3 class="m-0 min-w-0 flex-1 text-xl font-bold leading-tight text-[#222]">
+        <h3 class="m-0 min-w-0 flex-1 text-xl font-bold leading-tight text-[#1A1E24]">
           ระเบียบวาระ
         </h3>
         <button
@@ -39,7 +39,7 @@
             class="flex h-10 w-full items-center rounded px-3 py-2 text-left text-sm font-bold"
             :class="
               agenda.key === selectedAgendaKey
-                ? 'bg-[#edecec] text-[#222]'
+                ? 'bg-[#edecec] text-[#1A1E24]'
                 : 'bg-transparent text-[#7c7c7c] hover:bg-[#fafafa]'
             "
             @click="selectAgenda(agenda.key)"
@@ -55,7 +55,7 @@
               class="ml-3 flex h-10 w-[256px] max-w-[256px] items-center pl-3 text-left text-sm"
               :class="
                 topic.key === selectedTopicKey
-                  ? 'bg-[#f6f6f6] text-[#222]'
+                  ? 'bg-[#f6f6f6] text-[#1A1E24]'
                   : 'rounded bg-white text-[#7c7c7c] hover:bg-[#fafafa]'
               "
               @click="selectTopic(agenda.key, topic.key)"
@@ -64,7 +64,7 @@
                 class="flex h-full min-w-0 flex-1 items-center border-l-2 py-1 pl-2.5 pr-1"
                 :class="
                   topic.key === selectedTopicKey
-                    ? 'border-[#222]'
+                    ? 'border-[#1A1E24]'
                     : 'border-[#afafaf]'
                 "
               >
@@ -103,14 +103,14 @@
     <section class="meeting-form-agenda__detail min-w-0 flex-1">
       <div
         v-if="!selectedTopic"
-        class="flex min-h-[360px] items-center justify-center text-sm text-[#222]"
+        class="flex min-h-[360px] items-center justify-center text-sm text-[#1A1E24]"
       >
         กรุณาเลือกระเบียบวาระ
       </div>
 
       <template v-else>
         <div class="mb-2.5 flex h-10 items-center justify-between gap-3 py-1">
-          <h2 class="m-0 min-w-0 flex-1 text-xl font-bold leading-tight text-[#222]">
+          <h2 class="m-0 min-w-0 flex-1 text-xl font-bold leading-tight text-[#1A1E24]">
             {{ selectedAgenda?.label || "ระเบียบวาระ" }}
           </h2>
           <UCButton
@@ -125,7 +125,7 @@
           <div
             class="flex h-[45px] items-center justify-between gap-3 rounded-t-xl border-b border-[#afafaf] bg-[#f9f9f9] px-4"
           >
-            <span class="min-w-0 flex-1 truncate text-base font-bold text-[#222]">
+            <span class="min-w-0 flex-1 truncate text-base font-bold text-[#1A1E24]">
               เรื่องที่ {{ selectedTopicIndex + 1 }}
             </span>
             <button

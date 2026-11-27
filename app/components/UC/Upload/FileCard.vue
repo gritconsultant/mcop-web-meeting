@@ -30,7 +30,7 @@
     <div v-if="showMeta" class="flex w-full flex-col items-start justify-center">
       <span
         v-if="name"
-        class="address-cell w-full text-left text-[10px] text-[#222]"
+        class="address-cell w-full text-left text-[10px] text-[#1A1E24]"
       >
         {{ name }}
       </span>

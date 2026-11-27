@@ -2,7 +2,7 @@
   <div class="uc-upload">
     <h3
       v-if="title"
-      class="m-0 mb-1.5 py-1 text-xl font-bold leading-tight text-[#222]"
+      class="m-0 mb-1.5 py-1 text-xl font-bold leading-tight text-[#1A1E24]"
     >
       {{ title }}
     </h3>

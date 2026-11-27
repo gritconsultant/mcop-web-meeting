@@ -11,7 +11,7 @@
       >
         {{ selectedItem.tag }}
       </span>
-      <span class="truncate text-sm text-[#222]">
+      <span class="truncate text-sm text-[#1A1E24]">
         {{ selectedItem.label }}
       </span>
     </div>
@@ -345,11 +345,11 @@ const mergedUi = computed(() => ({
     .filter(Boolean)
     .join(" "),
   item: [
-    "w-full rounded-none px-3 py-2.5 text-sm !text-[#222] outline-none select-none",
+    "w-full rounded-none px-3 py-2.5 text-sm !text-[#1A1E24] outline-none select-none",
     "before:hidden",
-    "data-[highlighted]:!bg-[#F9F9F9] data-[highlighted]:!text-[#222]",
-    "data-[state=checked]:!bg-[#edecec] data-[state=checked]:!text-[#222]",
-    "data-[state=checked][data-highlighted]:!bg-[#E8E8E8] data-[state=checked][data-highlighted]:!text-[#222]",
+    "data-[highlighted]:!bg-[#F9F9F9] data-[highlighted]:!text-[#1A1E24]",
+    "data-[state=checked]:!bg-[#edecec] data-[state=checked]:!text-[#1A1E24]",
+    "data-[state=checked][data-highlighted]:!bg-[#E8E8E8] data-[state=checked][data-highlighted]:!text-[#1A1E24]",
     props.ui?.item,
   ]
     .filter(Boolean)

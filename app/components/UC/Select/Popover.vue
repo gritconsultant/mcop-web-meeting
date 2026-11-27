@@ -205,7 +205,7 @@
               checkOption(item) && !checkIsDisabled(item)
                 ? 'bg-graySelect text-white cursor-default'
                 : checkIsDisabled(item)
-                  ? 'text-[#222222] font-normal opacity-50'
+                  ? 'text-[#1A1E24] font-normal opacity-50'
                   : 'hover:bg-[#b5b5b5] hover:text-white cursor-pointer',
               { 'rounded-b-md': index === options.length - 1 },
             ]"
@@ -255,7 +255,7 @@
                   props.disabled ? 'opacity-50' : '',
                   item.customClassTagName
                     ? item.customClassTagName
-                    : 'bg-[#EDECEC] rounded-[4px] text-[#222222] min-w-24 group-hover:text-[#222222] text-xs text-center',
+                    : 'bg-[#EDECEC] rounded-[4px] text-[#1A1E24] min-w-24 group-hover:text-[#1A1E24] text-xs text-center',
                 ]"
               >
                 <span>
