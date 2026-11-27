@@ -1,15 +1,15 @@
 <template>
   <div class="flex max-w-[1100px] flex-col gap-5">
     <section class="flex flex-col gap-3">
-      <h2 class="m-0 text-xl font-bold leading-tight text-[#222]">
+      <h2 class="m-0 text-xl font-bold leading-tight text-[#1A1E24]">
         กำหนดส่งอัตโนมัติ
       </h2>
       <div class="flex flex-wrap gap-x-6 gap-y-4">
-        <label class="inline-flex cursor-pointer items-center gap-2 text-sm text-[#222]">
+        <label class="inline-flex cursor-pointer items-center gap-2 text-sm text-[#1A1E24]">
           <UCheckbox v-model="form.remind7Days" />
           <span>รอบที่ 1 : ก่อนวันประชุม 7 วัน</span>
         </label>
-        <label class="inline-flex cursor-pointer items-center gap-2 text-sm text-[#222]">
+        <label class="inline-flex cursor-pointer items-center gap-2 text-sm text-[#1A1E24]">
           <UCheckbox v-model="form.remind2Days" />
           <span>รอบที่ 2 : ก่อนวันประชุม 2 วัน</span>
         </label>
@@ -17,19 +17,19 @@
     </section>
 
     <section class="flex flex-col gap-3">
-      <h2 class="m-0 text-xl font-bold leading-tight text-[#222]">
+      <h2 class="m-0 text-xl font-bold leading-tight text-[#1A1E24]">
         ช่องทางการส่ง
       </h2>
       <div class="flex flex-wrap gap-x-6 gap-y-4">
-        <label class="inline-flex cursor-pointer items-center gap-2 text-sm text-[#222]">
+        <label class="inline-flex cursor-pointer items-center gap-2 text-sm text-[#1A1E24]">
           <UCheckbox v-model="form.isEmail" />
           <span>อีเมล</span>
         </label>
-        <label class="inline-flex cursor-pointer items-center gap-2 text-sm text-[#222]">
+        <label class="inline-flex cursor-pointer items-center gap-2 text-sm text-[#1A1E24]">
           <UCheckbox v-model="form.isSms" />
           <span>SMS</span>
         </label>
-        <label class="inline-flex cursor-pointer items-center gap-2 text-sm text-[#222]">
+        <label class="inline-flex cursor-pointer items-center gap-2 text-sm text-[#1A1E24]">
           <UCheckbox v-model="form.isLine" />
           <span>LINE</span>
         </label>
@@ -60,7 +60,7 @@
     <section v-if="form.isEmail" class="flex w-full flex-col">
       <button
         type="button"
-        class="flex h-[45px] w-full cursor-pointer items-center gap-3 rounded-t-xl border border-[#afafaf] bg-[#f9f9f9] px-4 text-left text-base font-bold text-[#222]"
+        class="flex h-[45px] w-full cursor-pointer items-center gap-3 rounded-t-xl border border-[#afafaf] bg-[#f9f9f9] px-4 text-left text-base font-bold text-[#1A1E24]"
         @click="togglePanel('email')"
       >
         <span class="min-w-0 flex-1">อีเมล</span>
@@ -97,7 +97,7 @@
     <section v-if="form.isSms" class="flex w-full flex-col">
       <button
         type="button"
-        class="flex h-[45px] w-full cursor-pointer items-center gap-3 rounded-t-xl border border-[#afafaf] bg-[#f9f9f9] px-4 text-left text-base font-bold text-[#222]"
+        class="flex h-[45px] w-full cursor-pointer items-center gap-3 rounded-t-xl border border-[#afafaf] bg-[#f9f9f9] px-4 text-left text-base font-bold text-[#1A1E24]"
         @click="togglePanel('sms')"
       >
         <span class="min-w-0 flex-1">SMS</span>
@@ -131,7 +131,7 @@
     <section v-if="form.isLine" class="flex w-full flex-col">
       <button
         type="button"
-        class="flex h-[45px] w-full cursor-pointer items-center gap-3 rounded-t-xl border border-[#afafaf] bg-[#f9f9f9] px-4 text-left text-base font-bold text-[#222]"
+        class="flex h-[45px] w-full cursor-pointer items-center gap-3 rounded-t-xl border border-[#afafaf] bg-[#f9f9f9] px-4 text-left text-base font-bold text-[#1A1E24]"
         @click="togglePanel('line')"
       >
         <span class="min-w-0 flex-1">LINE</span>
@@ -165,7 +165,7 @@
 
     <section class="flex w-full flex-col">
       <div
-        class="flex h-[45px] w-full cursor-default items-center gap-3 rounded-t-xl border border-[#afafaf] bg-[#f9f9f9] px-4 text-left text-base font-bold text-[#222]"
+        class="flex h-[45px] w-full cursor-default items-center gap-3 rounded-t-xl border border-[#afafaf] bg-[#f9f9f9] px-4 text-left text-base font-bold text-[#1A1E24]"
       >
         <span class="min-w-0 flex-1">ผู้รับคำเชิญ</span>
         <span

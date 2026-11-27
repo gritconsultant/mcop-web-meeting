@@ -36,7 +36,7 @@ html {
 body {
   margin: 0;
   padding: 0;
-  color: #222222;
+  color: #1A1E24;
   background-color: #f6f6f6;
 }
 
@@ -133,7 +133,7 @@ button:not(:disabled),
   padding: 10px 12px;
   font-size: 14px;
   font-weight: 700;
-  color: #222;
+  color: #1A1E24;
   text-align: center;
   white-space: nowrap;
   background-color: #f5f5f5;
@@ -335,7 +335,7 @@ button:not(:disabled),
   height: 34px;
   padding: 0 28px 0 12px;
   font-size: 14px;
-  color: #222;
+  color: #1A1E24;
   background: #fff
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
     no-repeat right 10px center;
@@ -415,7 +415,7 @@ button:not(:disabled),
 .hrm-search-bar__label {
   font-size: 14px;
   font-weight: 500;
-  color: #222;
+  color: #1A1E24;
   line-height: 1.4;
 }
 

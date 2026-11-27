@@ -12,7 +12,7 @@
         <div
           class="flex items-center justify-between border-b border-neutral-100 px-4 py-3"
         >
-          <h3 class="text-sm font-bold text-[#222]">การแจ้งเตือน</h3>
+          <h3 class="text-sm font-bold text-[#1A1E24]">การแจ้งเตือน</h3>
           <span
             v-if="items.length"
             class="rounded-full bg-[#811919]/10 px-2 py-0.5 text-[10px] font-bold text-[#811919]"
@@ -40,7 +40,7 @@
             :key="item.id"
             class="px-4 py-3 transition hover:bg-neutral-50"
           >
-            <p class="text-sm font-medium text-[#222]">{{ item.title }}</p>
+            <p class="text-sm font-medium text-[#1A1E24]">{{ item.title }}</p>
             <p v-if="item.description" class="mt-0.5 text-xs text-neutral-500">
               {{ item.description }}
             </p>

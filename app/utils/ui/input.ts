@@ -8,7 +8,7 @@ export const APP_INPUT_BASE_CLASSES = [
   "px-4",
   "py-2",
   "text-sm",
-  "text-[#222222]",
+  "text-[#1A1E24]",
   "placeholder:text-[#7C7C7C]",
   "focus:outline-none",
   "focus:ring-0",

@@ -209,7 +209,7 @@
 
 .app-header__meta-app {
   font-weight: 700;
-  color: #222;
+  color: #1A1E24;
 }
 
 .app-header__meta-sep {
@@ -287,7 +287,7 @@
   margin: 0;
   font-size: 1rem;
   font-weight: 700;
-  color: #222;
+  color: #1A1E24;
 }
 
 .uc-filter__toggle {
@@ -347,7 +347,7 @@
   font-size: 20px;
   font-weight: 700;
   line-height: 1.2;
-  color: #222;
+  color: #1A1E24;
 }
 
 .meeting-list-filter {
@@ -373,7 +373,7 @@
   margin-bottom: 6px;
   font-size: 14px;
   font-weight: 400;
-  color: #222;
+  color: #1A1E24;
 }
 
 .meeting-list-filter__field :deep(input),
@@ -448,7 +448,7 @@
 
 .meeting-list-table .hrm-pagination__text {
   font-size: 14px;
-  color: #222;
+  color: #1A1E24;
 }
 
 .meeting-list-table .hrm-pagination__select {
@@ -547,7 +547,7 @@
   margin: 0;
   font-size: 1rem;
   font-weight: 700;
-  color: #222;
+  color: #1A1E24;
 }
 
 .uc-agenda__list,
@@ -586,7 +586,7 @@
   min-width: 1.5rem;
   font-size: 0.875rem;
   font-weight: 700;
-  color: #222;
+  color: #1A1E24;
 }
 
 .uc-agenda__label {
@@ -644,7 +644,7 @@
   font-size: 20px;
   font-weight: 700;
   line-height: 1.2;
-  color: #222;
+  color: #1A1E24;
 }
 
 .meeting-form-page__body {
@@ -772,7 +772,7 @@
 }
 
 .meeting-form-stepper__item.is-active .meeting-form-stepper__label {
-  color: #222;
+  color: #1A1E24;
 }
 
 .meeting-form-stepper__item.is-done .meeting-form-stepper__label {
@@ -785,7 +785,7 @@
   font-size: 20px;
   font-weight: 700;
   line-height: 1.2;
-  color: #222;
+  color: #1A1E24;
 }
 
 /* Deep overrides for UCDataTable internals (cannot express via Tailwind on parent) */
@@ -820,7 +820,7 @@
   font-size: 14px;
   font-weight: 700;
   line-height: 1.4;
-  color: #222;
+  color: #1A1E24;
   background: #f6f6f6;
   border: none;
 }
@@ -832,7 +832,7 @@
   font-size: 14px;
   font-weight: 400;
   line-height: 1.4;
-  color: #222;
+  color: #1A1E24;
   border: 0.7px solid #afafaf;
   background: #fff;
 }
@@ -885,7 +885,7 @@
   margin: 4px 0 0;
   font-size: 15px;
   font-weight: 600;
-  color: #222;
+  color: #1A1E24;
 }
 
 .meeting-form-review__agendas {

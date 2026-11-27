@@ -48,7 +48,7 @@ const iconClass = computed(() => {
 
 const toneClass = computed(() => {
   if (props.tone === "dark") {
-    return "text-[#222] hover:bg-black/5 disabled:opacity-40";
+    return "text-[#1A1E24] hover:bg-black/5 disabled:opacity-40";
   }
   if (props.tone === "muted") {
     return "text-[#7C7C7C] hover:bg-black/5 disabled:opacity-40";

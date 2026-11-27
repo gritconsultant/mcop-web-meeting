@@ -125,7 +125,7 @@ const employeeDisplayName = (emp: any) =>
 const buildStartAt = (date?: string, time?: string) => {
   const d = date?.trim()?.slice(0, 10) ?? "";
   if (!d) return "";
-  const t = (time?.trim() || "00:00").slice(0, 5);
+  const t = (time?.trim() || "00:00").slice(0, 5);  
   return `${d}T${t}:00`;
 };
 

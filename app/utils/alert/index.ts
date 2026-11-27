@@ -247,7 +247,7 @@ export const showAlertConfirmWithDetails = (
     const checkboxChecked = ref<boolean>(false);
     const detailsHtml =
       payload.details?.length > 0
-        ? `<div class="grid grid-cols-1 gap-3 text-[#222222] pt-3">
+        ? `<div class="grid grid-cols-1 gap-3 text-[#1A1E24] pt-3">
         ${payload.details
           .map(
             (d) => `

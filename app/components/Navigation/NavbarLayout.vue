@@ -20,7 +20,7 @@
       >
         <span
           class="font-bold text-sm relative"
-          :class="menu.active ? 'text-white' : 'text-[#222222]'"
+          :class="menu.active ? 'text-white' : 'text-[#1A1E24]'"
         >
           {{ menu.label }}
         </span>

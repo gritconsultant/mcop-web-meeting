@@ -5,7 +5,7 @@
     <section
       class="flex w-full min-w-0 flex-col gap-5 rounded-xl border border-[#afafaf] bg-white p-5"
     >
-      <h2 class="m-0 text-xl font-bold leading-tight text-[#222]">
+      <h2 class="m-0 text-xl font-bold leading-tight text-[#1A1E24]">
         ข้อมูลการประชุม
       </h2>
 
@@ -65,7 +65,7 @@
     <section
       class="flex w-full min-w-0 flex-col gap-3 rounded-xl border border-[#afafaf] bg-white p-5"
     >
-      <h2 class="m-0 text-xl font-bold leading-tight text-[#222]">
+      <h2 class="m-0 text-xl font-bold leading-tight text-[#1A1E24]">
         ผู้เข้าประชุมตั้งต้น
       </h2>
 
@@ -87,10 +87,10 @@
               />
             </div>
             <div class="flex min-w-0 flex-1 flex-col items-end gap-1.5">
-              <div class="w-full text-right text-sm font-normal text-[#222]">
+              <div class="w-full text-right text-sm font-normal text-[#1A1E24]">
                 ผู้เข้าประชุม (ท่าน)
               </div>
-              <div class="w-full text-right text-xl font-bold text-[#222]">
+              <div class="w-full text-right text-xl font-bold text-[#1A1E24]">
                 {{ members.length }}
               </div>
             </div>
@@ -112,10 +112,10 @@
               />
             </div>
             <div class="flex min-w-0 flex-1 flex-col items-end gap-1.5">
-              <div class="w-full text-right text-sm font-normal text-[#222]">
+              <div class="w-full text-right text-sm font-normal text-[#1A1E24]">
                 ผู้เข้าร่วมประชุม (ท่าน)
               </div>
-              <div class="w-full text-right text-xl font-bold text-[#222]">
+              <div class="w-full text-right text-xl font-bold text-[#1A1E24]">
                 {{ guests.length }}
               </div>
             </div>
@@ -128,7 +128,7 @@
           <button
             type="button"
             role="tab"
-            class="h-10 shrink-0 cursor-pointer rounded-t-xl border-0 border-b border-[#afafaf] px-4 text-sm font-bold text-[#222]"
+            class="h-10 shrink-0 cursor-pointer rounded-t-xl border-0 border-b border-[#afafaf] px-4 text-sm font-bold text-[#1A1E24]"
             :class="
               attendeeTab === 'members'
                 ? 'border-b-[#444] bg-[#444] text-white'
@@ -141,7 +141,7 @@
           <button
             type="button"
             role="tab"
-            class="h-10 shrink-0 cursor-pointer rounded-t-xl border-0 border-b border-[#afafaf] px-4 text-sm font-bold text-[#222]"
+            class="h-10 shrink-0 cursor-pointer rounded-t-xl border-0 border-b border-[#afafaf] px-4 text-sm font-bold text-[#1A1E24]"
             :class="
               attendeeTab === 'guests'
                 ? 'border-b-[#444] bg-[#444] text-white'
