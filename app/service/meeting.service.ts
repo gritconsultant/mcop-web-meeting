@@ -59,3 +59,10 @@ export const getCommitteeSets = (params?: Record<string, unknown>) => {
     },
   });
 };
+
+export const getMeetingGuests = (id: string) => {
+  return client({
+    url: `/meeting/meetings/${id}/guests`,
+    method: "GET",
+  });
+};
