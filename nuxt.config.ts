@@ -35,7 +35,6 @@ export default defineNuxtConfig({
       WEB_API: "",
       API_VERSION: "v0.3.2",
       RECAPTCHA_SITE_KEY: "",
-      // Keycloak — ยังไม่ได้้ใช้กับ login
       KEYCLOAK_BASE_URL: "",
       KEYCLOAK_REALM: "",
       KEYCLOAK_CLIENT_ID: "",

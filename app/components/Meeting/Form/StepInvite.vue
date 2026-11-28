@@ -1,25 +1,28 @@
 <template>
   <div class="flex max-w-[1100px] flex-col gap-5">
-    <section class="flex flex-col gap-3">
-      <h2 class="m-0 text-xl font-bold leading-tight text-[#1A1E24]">
-        กำหนดส่งอัตโนมัติ
-      </h2>
-      <div class="flex flex-wrap gap-x-6 gap-y-4">
-        <label class="inline-flex cursor-pointer items-center gap-2 text-sm text-[#1A1E24]">
+    <section class="flex flex-col gap-1.5">
+      <p class="m-0 py-1 text-sm text-[#1A1E24]">
+        กำหนดส่งอัตโนมัติ <span class="text-[#fe3636]">*</span>
+      </p>
+      <div class="flex flex-wrap gap-x-5 gap-y-2">
+        <label class="inline-flex h-10 cursor-pointer items-center gap-3 px-3 text-sm text-[#1A1E24]">
           <UCheckbox v-model="form.remind7Days" />
-          <span>รอบที่ 1 : ก่อนวันประชุม 7 วัน</span>
+          <span>รอบที่ 1 แจ้งล่วงหน้า 7 วันก่อนวันประชุม</span>
         </label>
-        <label class="inline-flex cursor-pointer items-center gap-2 text-sm text-[#1A1E24]">
+        <label class="inline-flex h-10 cursor-pointer items-center gap-3 px-3 text-sm text-[#1A1E24]">
           <UCheckbox v-model="form.remind2Days" />
-          <span>รอบที่ 2 : ก่อนวันประชุม 2 วัน</span>
+          <span>รอบที่ 2 เตือนซ้ำก่อนถึง 2 วัน</span>
         </label>
       </div>
+      <p v-if="errors.remind" class="m-0 text-sm text-[#fe3636]">
+        {{ errors.remind }}
+      </p>
     </section>
 
-    <section class="flex flex-col gap-3">
-      <h2 class="m-0 text-xl font-bold leading-tight text-[#1A1E24]">
-        ช่องทางการส่ง
-      </h2>
+    <section class="flex flex-col gap-1.5">
+      <p class="m-0 py-1 text-sm text-[#1A1E24]">
+        ช่องทางการส่ง <span class="text-[#fe3636]">*</span>
+      </p>
       <div class="flex flex-wrap gap-x-6 gap-y-4">
         <label class="inline-flex cursor-pointer items-center gap-2 text-sm text-[#1A1E24]">
           <UCheckbox v-model="form.isEmail" />
@@ -34,11 +37,15 @@
           <span>LINE</span>
         </label>
       </div>
+      <p v-if="errors.channels" class="m-0 text-sm text-[#fe3636]">
+        {{ errors.channels }}
+      </p>
 
       <UCFormField
         label="URL สำหรับการประชุม"
         name="meeting_url"
         class="mt-4"
+        :error="errors.meeting_url"
       >
         <UCInput
           v-model="form.meetingUrl"
@@ -57,17 +64,24 @@
       </div>
     </section>
 
+    <div class="h-px w-full bg-[#afafaf]" />
+
     <section v-if="form.isEmail" class="flex w-full flex-col">
       <button
         type="button"
-        class="flex h-[45px] w-full cursor-pointer items-center gap-3 rounded-t-xl border border-[#afafaf] bg-[#f9f9f9] px-4 text-left text-base font-bold text-[#1A1E24]"
+        class="flex h-[45px] w-full cursor-pointer items-center gap-3 border border-[#afafaf] bg-[#f9f9f9] px-4 text-left text-base font-bold text-[#1A1E24]"
+        :class="panelOpen.email ? 'rounded-t-xl' : 'rounded-xl'"
         @click="togglePanel('email')"
       >
         <span class="min-w-0 flex-1">อีเมล</span>
         <span
-          class="inline-flex h-7 items-center whitespace-nowrap rounded-full bg-[#d5feef] px-2.5 py-1 text-xs font-bold text-[#008e6d]"
+          class="inline-flex h-7 items-center whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold"
+          :class="emailReady ? readyBadgeClass : pendingBadgeClass"
         >
-          พร้อมส่ง · {{ selectedCount }}/{{ recipients.length }} ราย มีอีเมล
+          {{ emailReady ? "พร้อมส่ง" : "ยังไม่ครบ" }} · {{ selectedCount }}/{{
+            recipients.length
+          }}
+          ราย มีอีเมล
         </span>
         <UIcon
           :name="
@@ -80,10 +94,21 @@
         v-show="panelOpen.email"
         class="rounded-b-xl border border-t-0 border-[#afafaf] bg-white p-5"
       >
-        <UCFormField label="หัวข้อ" name="email_subject" required>
+        <UCFormField
+          label="หัวข้อ"
+          name="email_subject"
+          required
+          :error="errors.email_subject"
+        >
           <UCInput v-model="form.emailSubject" placeholder="กรอกหัวข้ออีเมล" />
         </UCFormField>
-        <UCFormField label="เนื้อหา" name="email_body" class="mt-3" required>
+        <UCFormField
+          label="เนื้อหา"
+          name="email_body"
+          class="mt-3"
+          required
+          :error="errors.email_body"
+        >
           <UCInput
             v-model="form.emailBody"
             multiline
@@ -97,14 +122,19 @@
     <section v-if="form.isSms" class="flex w-full flex-col">
       <button
         type="button"
-        class="flex h-[45px] w-full cursor-pointer items-center gap-3 rounded-t-xl border border-[#afafaf] bg-[#f9f9f9] px-4 text-left text-base font-bold text-[#1A1E24]"
+        class="flex h-[45px] w-full cursor-pointer items-center gap-3 border border-[#afafaf] bg-[#f9f9f9] px-4 text-left text-base font-bold text-[#1A1E24]"
+        :class="panelOpen.sms ? 'rounded-t-xl' : 'rounded-xl'"
         @click="togglePanel('sms')"
       >
         <span class="min-w-0 flex-1">SMS</span>
         <span
-          class="inline-flex h-7 items-center whitespace-nowrap rounded-full bg-[#d5feef] px-2.5 py-1 text-xs font-bold text-[#008e6d]"
+          class="inline-flex h-7 items-center whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold"
+          :class="smsReady ? readyBadgeClass : pendingBadgeClass"
         >
-          พร้อมส่ง · {{ selectedCount }}/{{ recipients.length }} ราย มีเบอร์โทร
+          {{ smsReady ? "พร้อมส่ง" : "ยังไม่ครบ" }} · {{ selectedCount }}/{{
+            recipients.length
+          }}
+          ราย มีเบอร์โทร
         </span>
         <UIcon
           :name="
@@ -117,7 +147,12 @@
         v-show="panelOpen.sms"
         class="rounded-b-xl border border-t-0 border-[#afafaf] bg-white p-5"
       >
-        <UCFormField label="ข้อความ" name="sms_message" required>
+        <UCFormField
+          label="ข้อความ"
+          name="sms_message"
+          required
+          :error="errors.sms_message"
+        >
           <UCInput
             v-model="form.smsMessage"
             multiline
@@ -131,15 +166,19 @@
     <section v-if="form.isLine" class="flex w-full flex-col">
       <button
         type="button"
-        class="flex h-[45px] w-full cursor-pointer items-center gap-3 rounded-t-xl border border-[#afafaf] bg-[#f9f9f9] px-4 text-left text-base font-bold text-[#1A1E24]"
+        class="flex h-[45px] w-full cursor-pointer items-center gap-3 border border-[#afafaf] bg-[#f9f9f9] px-4 text-left text-base font-bold text-[#1A1E24]"
+        :class="panelOpen.line ? 'rounded-t-xl' : 'rounded-xl'"
         @click="togglePanel('line')"
       >
         <span class="min-w-0 flex-1">LINE</span>
         <span
-          class="inline-flex h-7 items-center whitespace-nowrap rounded-full bg-[#d5feef] px-2.5 py-1 text-xs font-bold text-[#008e6d]"
+          class="inline-flex h-7 items-center whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold"
+          :class="lineReady ? readyBadgeClass : pendingBadgeClass"
         >
-          พร้อมส่ง · {{ selectedCount }}/{{ recipients.length }} ราย ผูก LINE
-          ไว้แล้ว
+          {{ lineReady ? "พร้อมส่ง" : "ยังไม่ครบ" }} · {{ selectedCount }}/{{
+            recipients.length
+          }}
+          ราย ผูก LINE ไว้แล้ว
         </span>
         <UIcon
           :name="
@@ -152,7 +191,12 @@
         v-show="panelOpen.line"
         class="rounded-b-xl border border-t-0 border-[#afafaf] bg-white p-5"
       >
-        <UCFormField label="ข้อความ" name="line_message" required>
+        <UCFormField
+          label="ข้อความ"
+          name="line_message"
+          required
+          :error="errors.line_message"
+        >
           <UCInput
             v-model="form.lineMessage"
             multiline
@@ -169,12 +213,24 @@
       >
         <span class="min-w-0 flex-1">ผู้รับคำเชิญ</span>
         <span
-          class="inline-flex h-7 items-center whitespace-nowrap rounded-full bg-[#e8f1ff] px-2.5 py-1 text-xs font-bold text-[#0066da]"
+          class="inline-flex h-7 items-center whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold"
+          :class="
+            selectedCount > 0
+              ? 'bg-[#d9efff] text-[#338bef]'
+              : pendingBadgeClass
+          "
         >
-          เลือกแล้ว {{ selectedCount }}/{{ recipients.length }} ท่าน
+          {{
+            selectedCount > 0
+              ? `เลือกแล้ว ${selectedCount}/${recipients.length} ท่าน`
+              : "ยังไม่ได้เลือกผู้รับ"
+          }}
         </span>
       </div>
       <div class="rounded-b-xl border border-t-0 border-[#afafaf] bg-white p-5">
+        <p v-if="errors.recipients" class="m-0 mb-3 text-sm text-[#fe3636]">
+          {{ errors.recipients }}
+        </p>
         <div class="meeting-form-table w-full overflow-auto">
           <UCDataTable
             :items="recipients"
@@ -228,13 +284,52 @@ const recipients = defineModel<MeetingInviteRecipient[]>("recipients", {
   required: true,
 });
 
+const props = withDefaults(
+  defineProps<{
+    errors?: {
+      remind?: string;
+      channels?: string;
+      meeting_url?: string;
+      email_subject?: string;
+      email_body?: string;
+      sms_message?: string;
+      line_message?: string;
+      recipients?: string;
+    };
+  }>(),
+  { errors: () => ({}) },
+);
+
+const errors = computed(() => props.errors);
+
 type InvitePanelKey = "email" | "sms" | "line";
+
+const readyBadgeClass = "bg-[#d5feef] text-[#008e6d]";
+const pendingBadgeClass = "bg-[#fff0e5] text-[#ff6e00]";
+
+const filled = (value: string) => value.trim().length > 0;
+
+const emailReady = computed(
+  () => filled(form.value.emailSubject) && filled(form.value.emailBody),
+);
+const smsReady = computed(() => filled(form.value.smsMessage));
+const lineReady = computed(() => filled(form.value.lineMessage));
 
 const panelOpen = ref<Record<InvitePanelKey, boolean>>({
   email: true,
   sms: true,
   line: true,
 });
+
+watch(
+  errors,
+  (next) => {
+    if (next.email_subject || next.email_body) panelOpen.value.email = true;
+    if (next.sms_message) panelOpen.value.sms = true;
+    if (next.line_message) panelOpen.value.line = true;
+  },
+  { deep: true },
+);
 
 const togglePanel = (key: InvitePanelKey) => {
   panelOpen.value[key] = !panelOpen.value[key];

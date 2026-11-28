@@ -29,7 +29,7 @@
           <th class="is-left">สถานที่</th>
           <th class="w-[120px]">ผู้เข้าร่วม</th>
           <th class="w-[140px]">สถานะการประชุม</th>
-          <th class="w-20" />
+          <th :class="actionClass" />
         </tr>
       </template>
 
@@ -48,20 +48,22 @@
             />
           </td>
           <td>
-            <button
-              type="button"
-              class="meeting-list-table__view"
-              aria-label="ดูรายละเอียด"
-              title="ดูรายละเอียด"
-              @click="emit('view', item)"
-            >
-              <img
-                :src="viewIcon"
-                alt=""
-                width="32"
-                height="32"
-              />
-            </button>
+            <slot name="action" :item="item">
+              <button
+                type="button"
+                class="meeting-list-table__view"
+                aria-label="ดูรายละเอียด"
+                title="ดูรายละเอียด"
+                @click="emit('view', item)"
+              >
+                <img
+                  :src="viewIcon"
+                  alt=""
+                  width="32"
+                  height="32"
+                />
+              </button>
+            </slot>
           </td>
         </tr>
       </template>
@@ -81,10 +83,12 @@ withDefaults(
     loading?: boolean;
     pagination?: PaginationMeta;
     pageSizes?: number[];
+    actionClass?: string;
   }>(),
   {
     loading: false,
     pageSizes: () => [5, 10, 20, 30, 50],
+    actionClass: "w-20",
   },
 );
 

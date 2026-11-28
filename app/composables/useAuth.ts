@@ -141,8 +141,9 @@ export const useAuth = () => {
     clearTokens();
     store.clearUser();
 
-    // Keycloak SSO logout — เก็บ ssoLogoutUrl ไว้เมื่อพร้อมเปิดใช้
-    void ssoLogoutUrl;
+    if (ssoLogoutUrl) {
+      return await navigateTo(ssoLogoutUrl, { external: true });
+    }
     return await navigateTo("/login");
   };
 

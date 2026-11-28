@@ -350,6 +350,25 @@
   color: #1A1E24;
 }
 
+.meeting-control-set {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 6px;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.meeting-control-set__label {
+  color: #4c4c4c;
+  font-weight: 400;
+}
+
+.meeting-control-set__value {
+  color: #222;
+  font-weight: 700;
+}
+
 .meeting-list-filter {
   display: flex;
   flex-wrap: wrap;

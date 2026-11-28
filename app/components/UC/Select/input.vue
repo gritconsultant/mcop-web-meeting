@@ -19,7 +19,6 @@
     <UInputMenu
       ref="menuRef"
       v-model="modelValue"
-      :key="inputKey"
       v-model:open="isOpen"
       v-model:search-term="searchTerm"
       color="neutral"
@@ -68,7 +67,20 @@
       </template>
 
       <template #trailing="{ open }">
+        <UButton
+          v-if="clearable && selectedItem && !isDisabled"
+          as="span"
+          icon="i-lucide-x"
+          size="xs"
+          variant="link"
+          color="neutral"
+          tabindex="-1"
+          class="p-0 text-neutral-500"
+          aria-label="ล้างค่าที่เลือก"
+          @click.stop.prevent="onClear"
+        />
         <UIcon
+          v-else
           :name="open ? 'i-lucide-chevron-up' : icon"
           class="size-4 shrink-0 text-neutral-500"
         />
@@ -88,7 +100,6 @@ interface InputMeta {
   isInfiniteScroll?: boolean;
 }
 
-const inputKey = ref(0);
 const props = withDefaults(
   defineProps<{
     items?: UCSelectItem[];
@@ -101,8 +112,11 @@ const props = withDefaults(
     // ใช้คู่กับ meta.isInfiniteScroll: กำลังโหลดหน้าถัดไปอยู่ไหม
     loadingMore?: boolean;
     loading?: boolean;
+    // แสดงปุ่ม × ล้างค่าที่เลือก (ไม่ส่ง = ซ่อน)
+    clearable?: boolean;
   }>(),
   {
+    clearable: false,
     placeholder: "ค้นหา",
     icon: "i-lucide-chevron-down",
     items: () => [],
@@ -117,7 +131,11 @@ const emit = defineEmits<{
   (e: "load-more"): void;
 }>();
 
-const modelValue = defineModel<string>();
+const modelValue = defineModel<string | undefined>();
+const attrs = useAttrs();
+const isDisabled = computed(
+  () => attrs.disabled !== undefined && attrs.disabled !== false,
+);
 const isOpen = ref(false);
 const searchTerm = ref("");
 const defaultTagClass = "bg-[#7F1113]";
@@ -125,13 +143,14 @@ const defaultTagClass = "bg-[#7F1113]";
 const selectedItem = computed(() =>
   props.items.find((item) => item.value === modelValue.value),
 );
-const onOpenChange = async (open: boolean) => {
-  isOpen.value = open;
+const onClear = () => {
+  modelValue.value = undefined;
+  searchTerm.value = "";
+};
 
-  if (open) {
-    searchTerm.value = "";
-    inputKey.value++; // 🔥 force re-render
-  }
+const onOpenChange = (open: boolean) => {
+  isOpen.value = open;
+  if (open) searchTerm.value = "";
 };
 
 // ---------- infinite scroll ----------
@@ -292,9 +311,11 @@ watch(
     if (open) {
       await nextTick();
       await bindViewport();
-      onLockScroll();
-      bindOutsideScrollBlock();
-      fillIfNotScrollable();
+      if (props.meta?.isInfiniteScroll) {
+        onLockScroll();
+        bindOutsideScrollBlock();
+        fillIfNotScrollable();
+      }
     } else {
       unbindOutsideScrollBlock();
       onUnlockScroll();

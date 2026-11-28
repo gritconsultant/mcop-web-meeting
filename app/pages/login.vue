@@ -8,6 +8,11 @@
       class="animate-fade-up relative w-full max-w-lg overflow-hidden rounded-2xl bg-white p-6 shadow-lg ring-1 ring-black/5 sm:max-w-xl sm:p-8 md:max-w-2xl md:p-10"
       style="animation-delay: 80ms"
     >
+      <LoadingCardOverlay
+        :loading="ssoLoading"
+        title="กำลังเชื่อมต่อระบบ SSO..."
+      />
+
       <header
         class="h-29.5 -mx-6 -mt-6 flex items-center gap-3 rounded-t-2xl bg-cover bg-center bg-no-repeat px-6 py-6 sm:-mx-8 sm:-mt-8 sm:gap-4 sm:px-8 sm:py-8 md:-mx-10 md:-mt-10 md:px-10 md:py-10"
         :style="{ backgroundImage: `url(${bgLoginUrl})` }"
@@ -35,33 +40,62 @@
 
       <div class="mx-auto flex w-full max-w-100 flex-col items-center">
         <h2
-          class="font-noto-sans-thai animate-fade-up mt-12 text-center text-base font-bold text-black-900 sm:text-3xl md:text-[32px]"
+          class="font-noto-sans-thai animate-fade-up mt-12 text-center text-base font-bold text-[#222222] sm:text-3xl md:text-[32px]"
           style="animation-delay: 240ms"
         >
           ระบบประชุม
         </h2>
 
         <div
-          class="font-noto-sans-thai animate-fade-up mt-4 text-center text-base text-black-900 sm:text-lg md:text-[16px]"
+          class="font-noto-sans-thai animate-fade-up mt-4 text-center text-base text-[#222222] sm:text-lg md:text-[16px]"
           style="animation-delay: 240ms"
         >
           ลงชื่อเข้าใช้งาน
         </div>
 
-        <!-- ชั่วคราว: กดเข้าได้เลย ยังไม่บังคับ login จริง -->
-        <div class="mt-8 w-full">
-          <UCButton
-            type="primary"
-            button-type="button"
-            label="เข้าสู่ระบบ"
-            class="w-full"
-            @click="enterApp"
-          />
+        <div
+          v-if="isNoAccess"
+          role="alert"
+          class="mt-6 w-full rounded-xl bg-[#F9F9F9] p-4 text-center"
+        >
+          <p class="font-sarabun text-base font-semibold text-[#811919]">
+            บัญชีนี้ยังไม่มีสิทธิ์เข้าใช้งานระบบประชุม
+          </p>
+          <p class="mt-1 text-xs text-[#7C7C7C]">
+            กรุณาติดต่อผู้ดูแลระบบเพื่อขอสิทธิ์เข้าใช้งาน
+          </p>
         </div>
 
-        <!-- TODO: เปิด form username/password + captcha เมื่อ AUTH_REQUIRED = true
-        <UCForm ... />
-        -->
+        <div v-if="ssoEnabled" class="mt-6 w-full">
+          <UButton
+            type="button"
+            color="neutral"
+            variant="outline"
+            block
+            size="lg"
+            icon="i-lucide-log-in"
+            :disabled="ssoLoading"
+            :ui="{
+              base: 'h-[40px] justify-center rounded-[6px] border-[#0066DA] font-semibold text-[#0066DA] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#0066DA]/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0066DA]/50 focus-visible:ring-offset-2',
+            }"
+            @click="() => loginWithSso({ prompt: 'login' })"
+          >
+            เข้าสู่ระบบด้วย SSO
+          </UButton>
+        </div>
+
+        <div
+          v-else
+          role="alert"
+          class="mt-6 w-full rounded-xl bg-[#F9F9F9] p-4 text-center"
+        >
+          <p class="font-sarabun text-base font-semibold text-[#811919]">
+            ระบบเข้าสู่ระบบยังไม่พร้อมใช้งาน
+          </p>
+          <p class="mt-1 text-xs text-[#7C7C7C]">
+            กรุณาติดต่อผู้ดูแลระบบของสหกรณ์
+          </p>
+        </div>
 
         <p
           class="animate-fade-up mt-4 text-center text-[10px] text-[#7C7C7C]"
@@ -77,11 +111,56 @@
 <script setup lang="ts">
 import logoUrl from "~/assets/images/logo.svg";
 import bgLoginUrl from "~/assets/images/bg_login.svg";
-import { DEFAULT_ROUTE } from "~/composables/useNavigation";
+import { showAlert } from "~/utils/alert";
+import {
+  consumeAutoLoginSuppression,
+  rememberReturnTo,
+} from "~/utils/auth/keycloakSso";
+import { MEETING_NO_ACCESS_ERROR } from "~/utils/auth/role";
 
 definePageMeta({ layout: "login", public: true });
 
-const enterApp = async () => {
-  await navigateTo(DEFAULT_ROUTE);
+useHead({ title: "เข้าสู่ระบบ — ระบบประชุม" });
+
+const route = useRoute();
+const isNoAccess = computed(() => route.query.error === MEETING_NO_ACCESS_ERROR);
+const { isEnabled: ssoEnabled, startLogin } = useKeycloakSso();
+const ssoLoading = ref(false);
+
+const loginWithSso = async (options?: { prompt?: string }) => {
+  if (ssoLoading.value) return;
+  ssoLoading.value = true;
+  try {
+    const isManual = route.query.manual === "1" || Boolean(route.query.error);
+    const prompt = options?.prompt ?? (isManual ? "login" : undefined);
+    await startLogin(prompt ? { prompt } : undefined);
+  } catch {
+    ssoLoading.value = false;
+    showAlert({
+      type: "error",
+      title: "ไม่สามารถเชื่อมต่อระบบ SSO ได้",
+      text: "กรุณาลองใหม่อีกครั้ง หรือติดต่อผู้ดูแลระบบ",
+      isToast: true,
+    });
+  }
 };
+
+const resetSsoLoading = () => {
+  ssoLoading.value = false;
+};
+
+onMounted(() => {
+  window.addEventListener("pageshow", resetSsoLoading);
+  rememberReturnTo(route.query.returnTo);
+
+  const isManualMode =
+    route.query.manual === "1" || Boolean(route.query.error);
+  if (ssoEnabled.value && !isManualMode && !consumeAutoLoginSuppression()) {
+    void loginWithSso();
+  }
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("pageshow", resetSsoLoading);
+});
 </script>
