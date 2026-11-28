@@ -8,14 +8,9 @@ import {
 } from "~/utils/auth/role";
 import { alertSessionExpired } from "~/utils/auth/sessionExpired";
 
-/** เปิดเป็น true เมื่อพร้อมบังคับ login จริง */
-const AUTH_REQUIRED = false;
-
 const PUBLIC_PAGES = ["/login", "/auth/sso/callback"];
 
 export default defineNuxtRouteMiddleware(async (to) => {
-  if (!AUTH_REQUIRED) return;
-
   const { isLoggedIn, clearTokens, isAccessExpiring, refreshAccessToken } =
     useSession();
   const store = useAuthStore();

@@ -28,36 +28,48 @@
       <div class="meeting-form-page__body">
         <UCSkeletonPageForm v-if="loading" />
 
+        <div v-else class="m-0 min-w-0">
         <MeetingFormStepInfo
-          v-else-if="step === 0"
+          v-if="step === 0"
           v-model:form="infoForm"
+          v-model:guests="guests"
           :meeting-no-label="meetingNoLabel"
           :set-items="setItems"
           :committee-items="committeeItems"
           :loading-sets="loadingSets"
           :loading-committees="loadingCommittees"
           :loading-members="loadingMembers"
+          :editable="canEdit"
+          :postpone-hint="canPostpone"
           :members="members"
-          :guests="guests"
+          :errors="infoErrors"
         />
 
-        <MeetingFormStepInvite
-          v-else-if="step === 1"
-          v-model:form="inviteForm"
-          v-model:recipients="recipients"
-        />
-
-        <MeetingFormStepAgenda
-          v-else-if="step === 2"
-          v-model:agendas="agendas"
-        />
-
-        <MeetingFormStepReview
+        <fieldset
           v-else
-          :info="reviewInfo"
-          :invite="reviewInvite"
-          :agendas="agendas"
-        />
+          :disabled="!canEdit"
+          class="m-0 min-w-0 border-0 p-0"
+        >
+          <MeetingFormStepInvite
+            v-if="step === 1"
+            v-model:form="inviteForm"
+            v-model:recipients="recipients"
+            :errors="inviteErrors"
+          />
+
+          <MeetingFormStepAgenda
+            v-else-if="step === 2"
+            v-model:agendas="agendas"
+          />
+
+          <MeetingFormStepReview
+            v-else
+            :info="reviewInfo"
+            :invite="reviewInvite"
+            :agendas="agendas"
+          />
+        </fieldset>
+        </div>
       </div>
 
       <div class="meeting-form-page__footer">
@@ -69,7 +81,7 @@
         />
         <div class="meeting-form-page__footer-actions">
           <UCButton
-            v-if="showDraftButton"
+            v-if="canEdit && showDraftButton"
             type="add"
             label="บันทึกฉบับร่าง"
             :disabled="footerBusy"
@@ -88,7 +100,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
 import type {
   Committee,
   CommitteeSet,
@@ -193,15 +205,32 @@ const isCreate = computed(
   () => props.mode === "create" && !activeMeetingId.value,
 );
 
+const canEdit = computed(
+  () =>
+    isCreate.value || status.value === "draft" || status.value === "waiting",
+);
+
+const canPostpone = computed(
+  () => !isCreate.value && status.value === "waiting",
+);
+
 const breadcrumbs = computed(() => [
   { label: "ระเบียบการประชุม", to: "/meetings" },
   {
-    label: isCreate.value ? "เพิ่มวาระการประชุม" : "ฉบับร่าง",
+    label: isCreate.value
+      ? "เพิ่มวาระการประชุม"
+      : canEdit.value
+        ? "แก้ไขวาระการประชุม"
+        : "ดูวาระการประชุม",
   },
 ]);
 
 const pageTitle = computed(() =>
-  isCreate.value ? "เพิ่มวาระการประชุม" : "วาระการประชุม",
+  isCreate.value
+    ? "เพิ่มวาระการประชุม"
+    : canEdit.value
+      ? "วาระการประชุม"
+      : "ดูวาระการประชุม",
 );
 
 const showDraftButton = computed(() => step.value < FORM_STEPS.length - 1);
@@ -223,11 +252,40 @@ const meetingNoLabel = computed(() => {
 });
 
 const primaryLabel = computed(() => {
+  if (!canEdit.value && step.value === FORM_STEPS.length - 1) return "ปิด";
   if (step.value === FORM_STEPS.length - 1) {
     return isCreate.value ? "บันทึก" : "ยืนยัน";
   }
   return "ถัดไป";
 });
+
+const formSnapshot = () =>
+  JSON.stringify({
+    info: infoForm.value,
+    invite: inviteForm.value,
+    guests: guests.value,
+    recipients: recipients.value,
+    agendas: agendas.value,
+  });
+
+const savedSnapshot = ref("");
+
+const isDirty = computed(
+  () =>
+    canEdit.value &&
+    savedSnapshot.value !== "" &&
+    formSnapshot() !== savedSnapshot.value,
+);
+
+const markClean = () => {
+  savedSnapshot.value = formSnapshot();
+};
+
+const onBeforeUnload = (event: BeforeUnloadEvent) => {
+  if (!isDirty.value) return;
+  event.preventDefault();
+  event.returnValue = "";
+};
 
 const reviewInfo = computed(() => ({
   setLabel:
@@ -255,20 +313,34 @@ const reviewInvite = computed(() => ({
 }));
 
 const toSetItems = (rows: CommitteeSet[]): UCSelectItem[] =>
-  (Array.isArray(rows) ? rows : []).map((e: any) => {
-    const year = e?.year?.trim?.() ?? "";
+  (Array.isArray(rows) ? rows : []).flatMap((e: any) => {
+    const value = String(e?.id ?? "").trim();
+    if (!value) return [];
+    const year = String(e?.year ?? "").trim();
     const setNo = e?.set_number ?? "";
     const label = year
       ? `ชุดที่ ${setNo} (01/10/${year} - 30/09/${Number(year) + 1 || year})`
       : `ชุดที่ ${setNo}`;
-    return { value: e?.id ?? "", label };
+    return [{ value, label }];
   });
 
 const toCommitteeItems = (rows: Committee[]): UCSelectItem[] =>
-  (Array.isArray(rows) ? rows : []).map((e: any) => ({
-    value: e?.id ?? "",
-    label: e?.name ?? "",
-  }));
+  (Array.isArray(rows) ? rows : []).flatMap((e: any) => {
+    const value = String(e?.id ?? "").trim();
+    const label = String(e?.name ?? "").trim();
+    if (!value || !label) return [];
+    return [{ value, label }];
+  });
+
+const ensureOption = (
+  items: typeof setItems,
+  value: string,
+  label: string,
+) => {
+  if (!value || !label) return;
+  if (items.value.some((item) => item.value === value)) return;
+  items.value = [{ value, label }, ...items.value];
+};
 
 const syncRecipientsFromMembers = (preferSelectedIds?: Set<string>) => {
   recipients.value = members.value.map((m) => ({
@@ -300,7 +372,8 @@ const fetchSets = async () => {
   loadingSets.value = true;
   try {
     const resp = await service.meeting.getCommitteeSets({
-      ...queryMaster,
+      from: queryMaster.from,
+      size: queryMaster.size,
     });
     const { data, code } = resp as any;
     if (code == "200") {
@@ -325,7 +398,8 @@ const fetchCommittees = async () => {
   loadingCommittees.value = true;
   try {
     const resp = await service.meeting.getCommittees({
-      ...queryMaster,
+      from: queryMaster.from,
+      size: queryMaster.size,
     });
     const { data, code } = resp as any;
     if (code == "200") {
@@ -346,10 +420,65 @@ const fetchCommittees = async () => {
   }
 };
 
-const fetchMembers = async () => {
-  if (!activeMeetingId.value) {
+const mapRosterMembers = (rows: any[]): MeetingPerson[] =>
+  (Array.isArray(rows) ? rows : []).map((row: any) => {
+    const emp = row?.employee;
+    const id = row?.employee_id || emp?.id || "";
+    return {
+      key: id || createDraftKey(),
+      id: id || undefined,
+      name: employeeDisplayName(emp) || "-",
+      detail: row?.current_position?.position?.name?.trim?.() || "-",
+    };
+  });
+
+const fetchRosterMembers = async () => {
+  const committeeId = infoForm.value.meetingCommitteeId;
+  const setId = infoForm.value.meetingSetId;
+  if (!committeeId || !setId) {
     members.value = [];
     syncRecipientsFromMembers();
+    return;
+  }
+
+  loadingMembers.value = true;
+  try {
+    const rows: any[] = [];
+    let total = 0;
+    do {
+      const resp = await service.meeting.getCommitteeMembers({
+        meeting_committee_id: committeeId,
+        meeting_set_id: setId,
+        from: rows.length,
+        size: queryMaster.size,
+      });
+      const { data, code, paginate } = resp as any;
+      if (code != "200") break;
+      const page = Array.isArray(data) ? data : [];
+      rows.push(...page);
+      total = paginate?.total ?? rows.length;
+      if (!page.length) break;
+    } while (rows.length < total);
+
+    members.value = mapRosterMembers(rows);
+    syncRecipientsFromMembers();
+  } catch (err: any) {
+    members.value = [];
+    syncRecipientsFromMembers();
+    showAlert({
+      type: "warning",
+      title: "ดึงรายชื่อคณะกรรมการไม่สำเร็จ",
+      text: err?.message || "",
+      isToast: true,
+    });
+  } finally {
+    loadingMembers.value = false;
+  }
+};
+
+const fetchMembers = async () => {
+  if (!activeMeetingId.value) {
+    await fetchRosterMembers();
     return;
   }
 
@@ -391,8 +520,8 @@ const applyCreateDefaults = () => {
   meetingNo.value = null;
   meetingYear.value = "";
   infoForm.value = {
-    meetingSetId: setItems.value[0]?.value ?? "",
-    meetingCommitteeId: committeeItems.value[0]?.value ?? "",
+    meetingSetId: "",
+    meetingCommitteeId: "",
     meetingDate: undefined,
     startTime: undefined,
     location: "",
@@ -427,13 +556,26 @@ const applyMeetingData = (data: any) => {
   meetingYear.value = data?.meeting_set?.year?.trim?.() || "";
 
   const start = data?.start_at ?? "";
+  const setId = data?.meeting_set_id || data?.meeting_set?.id || "";
+  const committeeId =
+    data?.meeting_committee_id || data?.meeting_committee?.id || "";
   infoForm.value = {
-    meetingSetId: data?.meeting_set_id || "",
-    meetingCommitteeId: data?.meeting_committee_id || "",
+    meetingSetId: setId,
+    meetingCommitteeId: committeeId,
     meetingDate: start ? start.slice(0, 10) : undefined,
     startTime: start.length >= 16 ? start.slice(11, 16) : undefined,
     location: data?.location ?? "",
   };
+  ensureOption(
+    setItems,
+    setId,
+    toSetItems(data?.meeting_set ? [data.meeting_set] : [])[0]?.label ?? "",
+  );
+  ensureOption(
+    committeeItems,
+    committeeId,
+    data?.meeting_committee?.name?.trim?.() || "",
+  );
 
   const inv = data?.invitation;
   if (inv) {
@@ -554,7 +696,7 @@ const buildPayload = (isDraft: boolean) => {
     is_line: inviteForm.value.isLine,
     is_remind_7_days: inviteForm.value.remind7Days,
     is_remind_2_days: inviteForm.value.remind2Days,
-    meeting_url: inviteForm.value.meetingUrl?.trim() || null,
+    meeting_url: meetingUrlForPayload(inviteForm.value.meetingUrl),
     email_subject: inviteForm.value.isEmail
       ? inviteForm.value.emailSubject?.trim() || null
       : null,
@@ -598,46 +740,121 @@ const buildPayload = (isDraft: boolean) => {
   return payload;
 };
 
-const validateBeforeSave = (isDraft: boolean) => {
-  if (!infoForm.value.meetingCommitteeId || !infoForm.value.meetingSetId) {
-    return "กรุณาเลือกชุดและคณะ";
-  }
-  if (!infoForm.value.meetingDate || !infoForm.value.startTime) {
-    return "กรุณาเลือกวันที่และเวลาเริ่มต้น";
-  }
-  if (!infoForm.value.location.trim()) {
-    return "กรุณากรอกสถานที่";
-  }
-  if (isDraft) return "";
+const stepTried = ref([false, false, false, false]);
 
-  const inv = inviteForm.value;
-  if (!inv.isEmail && !inv.isSms && !inv.isLine) {
-    return "กรุณาเลือกช่องทางเชิญอย่างน้อย 1 ช่องทาง";
-  }
-  if (!inv.remind7Days && !inv.remind2Days) {
-    return "กรุณาเลือกกำหนดส่งคำเชิญอย่างน้อย 1 รายการ";
-  }
-  if (!recipients.value.some((r) => r.selected)) {
-    return "กรุณาเลือกผู้รับคำเชิญอย่างน้อย 1 คน";
-  }
-  if (inv.isEmail && (!inv.emailSubject.trim() || !inv.emailBody.trim())) {
-    return "กรุณากรอกหัวข้อและเนื้อหาอีเมล";
-  }
-  if (inv.isSms && !inv.smsMessage.trim()) {
-    return "กรุณากรอกข้อความ SMS";
-  }
-  if (inv.isLine && !inv.lineMessage.trim()) {
-    return "กรุณากรอกข้อความ LINE";
-  }
-  if (!agendas.value.length || agendas.value.some((a) => !a.topics.length)) {
-    return "ต้องมีอย่างน้อย 1 ระเบียบวาระ และแต่ละวาระต้องมีเรื่อง";
+const markStepTried = (index: number) => {
+  if (stepTried.value[index]) return;
+  const next = [...stepTried.value];
+  next[index] = true;
+  stepTried.value = next;
+};
+
+const meetingUrlError = (value: string) => {
+  const url = value.trim();
+  if (!url) return "";
+  if (/\s/.test(url) || url.includes("://")) {
+    return "กรอกลิงก์ต่อจาก https:// เช่น meet.example.com";
   }
   return "";
+};
+
+const meetingUrlForPayload = (value: string) => {
+  const url = value.trim();
+  if (!url) return null;
+  return url.includes("://") ? url : `https://${url}`;
+};
+
+const collectInfoErrors = () => {
+  const errors: Record<string, string> = {};
+  if (!infoForm.value.meetingSetId) errors.meeting_set_id = "กรุณาเลือกชุด";
+  if (!infoForm.value.meetingCommitteeId) {
+    errors.meeting_committee_id = "กรุณาเลือกคณะ";
+  }
+  if (!infoForm.value.meetingDate) errors.meeting_date = "กรุณาเลือกวันที่ประชุม";
+  if (!infoForm.value.startTime) errors.start_time = "กรุณาเลือกเวลาเริ่มต้น";
+  if (!infoForm.value.location.trim()) errors.location = "กรุณากรอกสถานที่";
+  return errors;
+};
+
+const collectInviteErrors = () => {
+  const errors: Record<string, string> = {};
+  const inv = inviteForm.value;
+  if (!inv.remind7Days && !inv.remind2Days) {
+    errors.remind = "กรุณาเลือกกำหนดส่งอย่างน้อย 1 รอบ";
+  }
+  if (!inv.isEmail && !inv.isSms && !inv.isLine) {
+    errors.channels = "กรุณาเลือกช่องทางเชิญอย่างน้อย 1 ช่องทาง";
+  }
+  const urlError = meetingUrlError(inv.meetingUrl);
+  if (urlError) errors.meeting_url = urlError;
+  if (inv.isEmail && !inv.emailSubject.trim()) {
+    errors.email_subject = "กรุณากรอกหัวข้ออีเมล";
+  }
+  if (inv.isEmail && !inv.emailBody.trim()) {
+    errors.email_body = "กรุณากรอกเนื้อหาอีเมล";
+  }
+  if (inv.isSms && !inv.smsMessage.trim()) {
+    errors.sms_message = "กรุณากรอกข้อความ SMS";
+  }
+  if (inv.isLine && !inv.lineMessage.trim()) {
+    errors.line_message = "กรุณากรอกข้อความ LINE";
+  }
+  if (!recipients.value.some((row) => row.selected)) {
+    errors.recipients = "กรุณาเลือกผู้รับคำเชิญอย่างน้อย 1 คน";
+  }
+  return errors;
+};
+
+const infoErrors = computed(() =>
+  stepTried.value[0] ? collectInfoErrors() : {},
+);
+const inviteErrors = computed(() =>
+  stepTried.value[1] ? collectInviteErrors() : {},
+);
+
+const plainText = (html: string) =>
+  html.replace(/<[^>]*>/g, " ").replace(/&nbsp;/gi, " ").trim();
+
+const agendaError = () => {
+  if (!agendas.value.length) return "ต้องมีอย่างน้อย 1 ระเบียบวาระ";
+  if (agendas.value.some((agenda) => !agenda.topics.length)) {
+    return "แต่ละระเบียบวาระต้องมีอย่างน้อย 1 เรื่อง";
+  }
+  if (
+    agendas.value.some((agenda) =>
+      agenda.topics.some((topic) => !topic.title.trim()),
+    )
+  ) {
+    return "กรุณากรอกชื่อเรื่องให้ครบ";
+  }
+  if (
+    agendas.value.some((agenda) =>
+      agenda.topics.some((topic) => !plainText(topic.detail || "")),
+    )
+  ) {
+    return "กรุณากรอกรายละเอียดเรื่องให้ครบ";
+  }
+  return "";
+};
+
+const validateBeforeSave = (isDraft: boolean) => {
+  markStepTried(0);
+  const infoMessage = Object.values(collectInfoErrors())[0];
+  if (infoMessage) return infoMessage;
+  if (isDraft) return "";
+
+  markStepTried(1);
+  const inviteMessage = Object.values(collectInviteErrors())[0];
+  if (inviteMessage) return inviteMessage;
+  return agendaError();
 };
 
 const persistMeeting = async (isDraft: boolean) => {
   const error = validateBeforeSave(isDraft);
   if (error) {
+    if (Object.keys(collectInfoErrors()).length) step.value = 0;
+    else if (!isDraft && Object.keys(collectInviteErrors()).length) step.value = 1;
+    else if (!isDraft && agendaError()) step.value = 2;
     await showAlert({ type: "warning", title: error, isToast: true });
     return false;
   }
@@ -669,6 +886,7 @@ const persistMeeting = async (isDraft: boolean) => {
       statusName.value =
         MEETING_STATUS_LABEL[data.status as MeetingStatus] || statusName.value;
     }
+    markClean();
     return true;
   } catch (err: any) {
     await showAlert({
@@ -698,6 +916,15 @@ const onBack = () => {
 const onNext = async () => {
   if (footerBusy.value) return;
 
+  if (!canEdit.value) {
+    if (step.value >= FORM_STEPS.length - 1) {
+      navigateTo("/meetings");
+      return;
+    }
+    step.value += 1;
+    return;
+  }
+
   if (step.value >= FORM_STEPS.length - 1) {
     const ok = await confirmAction(
       status.value === "draft"
@@ -712,13 +939,22 @@ const onNext = async () => {
     return;
   }
 
-  if (step.value === 2 && !agendas.value.length) {
-    await showAlert({
-      type: "warning",
-      title: "ต้องมีอย่างน้อย 1 ระเบียบวาระ",
-      isToast: true,
-    });
-    return;
+  if (step.value === 0) {
+    markStepTried(0);
+    if (Object.keys(collectInfoErrors()).length) return;
+  }
+
+  if (step.value === 1) {
+    markStepTried(1);
+    if (Object.keys(collectInviteErrors()).length) return;
+  }
+
+  if (step.value === 2) {
+    const message = agendaError();
+    if (message) {
+      await showAlert({ type: "warning", title: message, isToast: true });
+      return;
+    }
   }
 
   step.value += 1;
@@ -743,12 +979,29 @@ watch(
   },
 );
 
+onBeforeRouteLeave(async () => {
+  if (!isDirty.value) return true;
+  return showAlertConfirm({
+    type: "warning",
+    title: "ยังไม่บันทึก",
+    text: "มีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก ต้องการออกจากหน้านี้หรือไม่",
+    confirmButtonText: "ออกจากหน้านี้",
+    cancelButtonText: "อยู่ต่อ",
+  }) as Promise<boolean>;
+});
+
 onMounted(async () => {
+  window.addEventListener("beforeunload", onBeforeUnload);
   loading.value = true;
   activeMeetingId.value = props.meetingId ?? "";
   await Promise.all([fetchCommittees(), fetchSets()]);
   await fetchMeeting();
   await fetchMembers();
   loading.value = false;
+  markClean();
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("beforeunload", onBeforeUnload);
 });
 </script>
